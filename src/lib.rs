@@ -2,6 +2,7 @@ mod environment;
 use std::collections::HashMap;
 use environment::{createBlankGrid, createBorders};
 mod constants;
+mod env;
 
 turbo::cfg! {r#"
     name = "dash-pandas"
@@ -49,7 +50,7 @@ turbo::go!({
     {
         color = 0x4169E1FF;
         if m.left.just_pressed() {
-            os::client::exec("dash-pandas", "hello", &[]);
+            os::client::exec(env::projectName, "hello", &[]);
         }
     }
     //draw a button
@@ -57,16 +58,16 @@ turbo::go!({
     text!("HELLO!!", x = 50, y = 109);
 
     if gamepad(0).left.pressed() {
-        os::client::exec("dash-pandas", "input_left", &[]);
+        os::client::exec(env::projectName, "input_left", &[]);
     }
     if gamepad(0).right.pressed() {
-        os::client::exec("dash-pandas", "input_right", &[]);
+        os::client::exec(env::projectName, "input_right", &[]);
     }
     if gamepad(0).up.pressed() {
-        os::client::exec("dash-pandas", "input_up", &[]);
+        os::client::exec(env::projectName, "input_up", &[]);
     }
     if gamepad(0).down.pressed() {
-        os::client::exec("dash-pandas", "input_down", &[]);
+        os::client::exec(env::projectName, "input_down", &[]);
     }
 });
 
