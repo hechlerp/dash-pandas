@@ -1,5 +1,6 @@
 mod environment;
 use std::collections::HashMap;
+use constants::CELLVAL;
 use environment::{createBlankGrid, createBorders};
 mod constants;
 mod env;
@@ -17,8 +18,8 @@ turbo::cfg! {r#"
 
 turbo::init! {
     struct GameState {
-        grid: Vec<Vec<bool>>
-
+        frameNum: u32,
+        grid: Vec<Vec<CELLVAL>>
     } = {
         Self::new()
     }
@@ -27,12 +28,19 @@ turbo::init! {
 impl GameState {
     fn new() -> Self {
         let borders: Vec<(usize, usize)> = createBorders();
-        let mut grid = createBlankGrid();
+        let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
+        let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,2)];
+
         for wallTuple in borders {
-            grid[wallTuple.0][wallTuple.1] = true;
+            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
         }
+        for wallTuple in wallSpawns {
+            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+        }
+        
         Self {
-            grid
+            grid,
+            frameNum: 0
         }
     }
 }
@@ -42,6 +50,20 @@ turbo::go!({
     clear!(0xADD8E6FF);
     let (x, y, w, h) = (36, 102, 60, 20);
     let mut color = 0x00008BFF;
+
+    state.frameNum += 1;
+
+    log!("DEBUG: {:?}", state.frameNum);
+
+    // debug all grid valuse with frame number
+    for y in 0..constants::MAP_DIM_Y {
+
+        log!("NEXT ROW");
+
+        for x in 0..constants::MAP_DIM_X {
+            log!("DEBUG: frameNum: {}, grid[{}][{}]: {:?}", state.frameNum, x, y, state.grid[x][y]);
+        }
+    }
 
     let m = mouse(0);
     //check if mouse is over the button and clicked
@@ -69,6 +91,8 @@ turbo::go!({
     if gamepad(0).down.pressed() {
         os::client::exec(env::PROJECT_NAME, "input_down", &[]);
     }
+
+    state.save();
 });
 
 #[export_name = "turbo/input_left"]

@@ -1,21 +1,19 @@
 
 use crate::*;
-use crate::constants::{self, CELL_SIZE, MAP_DIM_X, MAP_DIM_Y};
+use crate::constants::{self, CELLVAL, CELL_SIZE, MAP_DIM_X, MAP_DIM_Y};
 
-
-
-pub fn createBlankGrid() -> Vec<Vec<bool>> {
-    let mut grid: Vec<Vec<bool>> = vec![];
+pub fn createBlankGrid() -> Vec<Vec<CELLVAL>> {
+    let mut grid: Vec<Vec<CELLVAL>> = vec![];
     for y in 0..MAP_DIM_Y {
         grid.push(vec![]);
         for _x in 0..MAP_DIM_X {
-            grid[y].push(false);
+            grid[y].push(CELLVAL::Empty);
         }
     }
     return grid;
 }
 
-const WALL_COLOR: u32 = 0x96885dFF;
+const WALL_COLOR: u32 = 0x00000000;
 
 pub fn drawGrid(grid: Vec<Vec<bool>>) {
     for y in 0..MAP_DIM_Y {
