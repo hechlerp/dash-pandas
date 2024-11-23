@@ -55,10 +55,40 @@ turbo::go!({
     //draw a button
     rect!(x = x, y = y, w = w, h = h, color = color, border_radius = 8);
     text!("HELLO!!", x = 50, y = 109);
+
+    if gamepad(0).left.pressed() {
+        os::client::exec("dash-pandas", "input_left", &[]);
+    }
+    if gamepad(0).right.pressed() {
+        os::client::exec("dash-pandas", "input_right", &[]);
+    }
+    if gamepad(0).up.pressed() {
+        os::client::exec("dash-pandas", "input_up", &[]);
+    }
+    if gamepad(0).down.pressed() {
+        os::client::exec("dash-pandas", "input_down", &[]);
+    }
 });
 
-#[export_name = "turbo/hello"]
-unsafe extern "C" fn on_hello() -> usize {
-    os::server::log!("Hello, world!");
+#[export_name = "turbo/input_left"]
+unsafe extern "C" fn on_input_left() -> usize {
+    os::server::log!("input_left");
+    return os::server::COMMIT;
+}
+#[export_name = "turbo/input_right"]
+unsafe extern "C" fn on_input_right() -> usize {
+    os::server::log!("input_right");
+    return os::server::COMMIT;
+}
+
+#[export_name = "turbo/input_up"]
+unsafe extern "C" fn on_input_up() -> usize {
+    os::server::log!("input_up");
+    return os::server::COMMIT;
+}
+
+#[export_name = "turbo/input_down"]
+unsafe extern "C" fn on_input_down() -> usize {
+    os::server::log!("input_down");
     return os::server::COMMIT;
 }
