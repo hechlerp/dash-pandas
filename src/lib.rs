@@ -50,7 +50,7 @@ turbo::go!({
     {
         color = 0x4169E1FF;
         if m.left.just_pressed() {
-            os::client::exec(env::projectName, "hello", &[]);
+            os::client::exec(env::PROJECT_NAME, "hello", &[]);
         }
     }
     //draw a button
@@ -58,16 +58,16 @@ turbo::go!({
     text!("HELLO!!", x = 50, y = 109);
 
     if gamepad(0).left.pressed() {
-        os::client::exec(env::projectName, "input_left", &[]);
+        os::client::exec(env::PROJECT_NAME, "input_left", &[]);
     }
     if gamepad(0).right.pressed() {
-        os::client::exec(env::projectName, "input_right", &[]);
+        os::client::exec(env::PROJECT_NAME, "input_right", &[]);
     }
     if gamepad(0).up.pressed() {
-        os::client::exec(env::projectName, "input_up", &[]);
+        os::client::exec(env::PROJECT_NAME, "input_up", &[]);
     }
     if gamepad(0).down.pressed() {
-        os::client::exec(env::projectName, "input_down", &[]);
+        os::client::exec(env::PROJECT_NAME, "input_down", &[]);
     }
 });
 
