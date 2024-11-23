@@ -1,6 +1,6 @@
 mod environment;
-use std::collections::HashMap;
-use environment::{createBlankGrid, createBorders};
+use std::{collections::HashMap, usize};
+use environment::{createBlankGrid, createBorders, isWall};
 mod constants;
 mod env;
 
@@ -40,7 +40,7 @@ impl GameState {
 turbo::go!({
     let mut state = GameState::load();
     clear!(0xADD8E6FF);
-    let (x, y, w, h) = (36, 102, 60, 20);
+    let mut (x, y, w, h) = (36, 102, 60, 20);
     let mut color = 0x00008BFF;
 
     let m = mouse(0);
@@ -57,23 +57,32 @@ turbo::go!({
     rect!(x = x, y = y, w = w, h = h, color = color, border_radius = 8);
     text!("HELLO!!", x = 50, y = 109);
 
-    if gamepad(0).left.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_left", &[]);
+    if gamepad(0).up.just_pressed() {
+        while !isWall(x as usize, y as usize, constants::DIRECTIONS::Up, state) {
+            y -= 1;
+        }
     }
-    if gamepad(0).right.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_right", &[]);
+    if gamepad(0).down.just_pressed() {
+        while !isWall(x as usize, y as usize, constants::DIRECTIONS::Up, state) {
+            y += 1;
+        }
     }
-    if gamepad(0).up.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_up", &[]);
+    if gamepad(0).left.just_pressed() {
+        while !isWall(x as usize, y as usize, constants::DIRECTIONS::Up, state) {
+            x -= 1;
+        }
     }
-    if gamepad(0).down.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_down", &[]);
+    if gamepad(0).right.just_pressed() {
+        while !isWall(x as usize, y as usize, constants::DIRECTIONS::Up, state) {
+            x += 1;
+        }
     }
 });
 
 #[export_name = "turbo/input_left"]
 unsafe extern "C" fn on_input_left() -> usize {
     os::server::log!("input_left");
+
     return os::server::COMMIT;
 }
 #[export_name = "turbo/input_right"]
