@@ -1,4 +1,5 @@
 mod wall;
+mod grid;
 
-pub use wall::isWall;
-pub use wall::Wall;
+pub use wall::*;
+pub use grid::*;

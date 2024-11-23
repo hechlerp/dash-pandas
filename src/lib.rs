@@ -1,6 +1,6 @@
 mod environment;
 use std::collections::HashMap;
-use environment::Wall;
+use environment::{createBlankGrid, createBorders};
 mod constants;
 
 turbo::cfg! {r#"
@@ -16,8 +16,8 @@ turbo::cfg! {r#"
 
 turbo::init! {
     struct GameState {
-        grid: Vec<Vec<bool>>,
-        walls: Vec<Wall>,
+        grid: Vec<Vec<bool>>
+
     } = {
         Self::new()
     }
@@ -25,9 +25,13 @@ turbo::init! {
 
 impl GameState {
     fn new() -> Self {
+        let borders: Vec<(usize, usize)> = createBorders();
+        let mut grid = createBlankGrid();
+        for wallTuple in borders {
+            grid[wallTuple.0][wallTuple.1] = true;
+        }
         Self {
-            grid: vec![],
-            walls: vec![]
+            grid
         }
     }
 }
