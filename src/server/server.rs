@@ -1,27 +1,25 @@
-use crate::env;
-use crate::turbo::*;
-use crate::constants::{MAX_PLAYERS, DIRECTIONS};
+use crate::env::{PROJECT_NAME};
+use crate::*;
+use crate::constants::{MAX_PLAYERS, MAP_DIM_X, MAP_DIM_Y, FP_GAME_STATE, FP_GAME_INIT};
 
-pub fn joinServer() -> bool {
+pub fn join_server() {
 
-    let response: usize = os::client::exec(PROJECT_NAME, "join_server", ());
-    if (response == os::server::COMMIT) {
-        return true;
-    }
+    os::client::exec(PROJECT_NAME, "join_server", &[]);
     
 }
 
 #[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
 struct ServerGameState {
-    grid: Vec<Vec<bool>>,
-    players: Vec<String>
+    grid: Vec<Vec<CELLVAL>>,
+    players: Vec<PlayerCharacter>
 }
 
 impl ServerGameState {
-    fn new(players: Vec<String>) -> Self {
+    fn new(players: Vec<PlayerCharacter>) -> Self {
         let mut grid = createBlankGrid();
-        for wallTuple in borders {
-            grid[wallTuple.0][wallTuple.1] = true;
+        let borders = createBorders();
+        for wall_tuple in borders {
+            grid[wall_tuple.0][wall_tuple.1] = CELLVAL::Wall;
         }
         Self {
             grid,
@@ -29,8 +27,8 @@ impl ServerGameState {
         }
     }
 
-    fn getGrid() -> Vec<Vec<bool>> {
-        return grid;
+    fn get_grid(&self) -> Vec<Vec<CELLVAL>> {
+        return self.grid.clone();
     }
 }
 
@@ -54,31 +52,38 @@ impl PlayerCharacter {
     // }
 }
 
-fn initServer(players: Vec<String>) -> ServerGameState {
-    os::server::write!("game_init", true);
-    let initialState = ServerGameState::new(players);
-    os::server::write!(ServerGameState, "game_state");
-    return initialState;
+fn init_server(players: Vec<String>) -> ServerGameState {
+    os::server::write!(FP_GAME_INIT, true);
+    let initial_state = ServerGameState::new(
+        players
+        .into_iter()
+        .map(|player_id| PlayerCharacter::new(player_id))
+        .collect()
+    );
+    os::server::write!(FP_GAME_STATE, initial_state);
+    return initial_state;
 }
 
 fn join_lobby(player: String) -> usize {
-    let state = os::server::read!(ServerGameState, "game_state");
+    let mut state = os::server::read!(ServerGameState, FP_GAME_STATE);
     if state.players.len() <= MAX_PLAYERS {
+        let user = PlayerCharacter::new(player.clone());
         state.players.push(user);
         return os::server::COMMIT;
     } else {
         return os::server::CANCEL;
     }
+    
 }
 
 
 #[export_name = "turbo/join_server"]
 unsafe extern "C" fn on_server_join() -> usize {
-    let user: &str = os::server::get_user_id();
-    os::server::log!(format!("player joined-{}", user));
-    let hasBeenInitialized = os::server::read_or!(bool, "game_init", false);
-    if (!hasBeenInitialized) {
-        let serverState = initServer();
+    let user: String = os::server::get_user_id();
+    os::server::log!("user joined!");
+    let has_been_initialized = os::server::read_or!(bool, FP_GAME_INIT, false);
+    if (!has_been_initialized) {
+        init_server(vec![user.clone()]);
     }
     return join_lobby(user);
 }

@@ -1,1 +1,1 @@
-pub const MAX_PLAYERS: i8 = 2;
+pub const MAX_PLAYERS: usize = 2;
