@@ -14,6 +14,27 @@ turbo::cfg! {r#"
     api-url = "https://os.turbo.computer"
 "#}
 
+turbo::init! {
+    struct GameState {
+        grid: Vec<Vec<bool>>
+
+    } = {
+        Self::new()
+    }
+}
+
+impl GameState {
+    fn new() -> Self {
+        let borders: Vec<(usize, usize)> = createBorders();
+        let mut grid = createBlankGrid();
+        for wallTuple in borders {
+            grid[wallTuple.0][wallTuple.1] = true;
+        }
+        Self {
+            grid
+        }
+    }
+}
 
 turbo::go!({
     let mut state = GameState::load();
