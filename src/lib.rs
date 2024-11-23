@@ -1,3 +1,8 @@
+mod environment;
+use std::collections::HashMap;
+use environment::Wall;
+mod constants;
+
 turbo::cfg! {r#"
     name = "dash-pandas"
     version = "1.0.0"
@@ -9,7 +14,26 @@ turbo::cfg! {r#"
     api-url = "https://os.turbo.computer"
 "#}
 
+turbo::init! {
+    struct GameState {
+        grid: Vec<Vec<bool>>,
+        walls: Vec<Wall>,
+    } = {
+        Self::new()
+    }
+}
+
+impl GameState {
+    fn new() -> Self {
+        Self {
+            grid: vec![],
+            walls: vec![]
+        }
+    }
+}
+
 turbo::go!({
+    let mut state = GameState::load();
     clear!(0xADD8E6FF);
     let (x, y, w, h) = (36, 102, 60, 20);
     let mut color = 0x00008BFF;
