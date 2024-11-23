@@ -1,3 +1,8 @@
+mod environment;
+use std::collections::HashMap;
+use environment::{createBlankGrid, createBorders};
+mod constants;
+
 turbo::cfg! {r#"
     name = "dash-pandas"
     version = "1.0.0"
@@ -11,6 +16,7 @@ turbo::cfg! {r#"
 
 
 turbo::go!({
+    let mut state = GameState::load();
     clear!(0xADD8E6FF);
     let (x, y, w, h) = (36, 102, 60, 20);
     let mut color = 0x00008BFF;
