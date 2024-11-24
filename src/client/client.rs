@@ -2,8 +2,33 @@ use crate::*;
 use crate::constants::{FP_GAME_STATE, FP_GAME_INIT};
 use crate::env::{PROJECT_NAME};
 use crate::gameserver::{join_server, ServerGameState};
+use turbo::os::client::channel::*;
 
 pub fn render() {
+    // Subscribe to channel
+    let multiplayer_dungeon_channel = Channel::subscribe(
+        env::PROJECT_NAME,
+        "dash-pandas-multiplayer-channel",
+        &format!("{}", "bigboi"),
+    );
+
+    // Connect to channel
+    if let Channel::Disconnected(ref conn) = multiplayer_dungeon_channel {
+        conn.connect();
+    };
+
+    // Receive messages from the channel
+    if let Channel::Connected(ref conn) = multiplayer_dungeon_channel {
+        let t = tick();
+        while let Ok(Some(data)) = conn.recv() {
+            // Parse message
+            if let Ok(msg) = String::from_utf8(data) {
+                // Update player emote
+                log!("{}", msg);
+            }
+        }
+    }
+
     let server_inited = os::client::watch_file(PROJECT_NAME, FP_GAME_INIT)
         .data
         .and_then(|file| bool::try_from_slice(&file.contents).ok())

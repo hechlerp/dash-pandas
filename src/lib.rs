@@ -55,17 +55,17 @@ turbo::go!({
 
     state.frameNum += 1;
 
-    log!("DEBUG: {:?}", state.frameNum);
+    // log!("DEBUG: {:?}", state.frameNum);
 
-    // debug all grid valuse with frame number
-    for y in 0..constants::MAP_DIM_Y {
+    // // debug all grid valuse with frame number
+    // for y in 0..constants::MAP_DIM_Y {
 
-        log!("NEXT ROW");
+    //     log!("NEXT ROW");
 
-        for x in 0..constants::MAP_DIM_X {
-            log!("DEBUG: frameNum: {}, grid[{}][{}]: {:?}", state.frameNum, x, y, state.grid[x][y]);
-        }
-    }
+    //     for x in 0..constants::MAP_DIM_X {
+    //         log!("DEBUG: frameNum: {}, grid[{}][{}]: {:?}", state.frameNum, x, y, state.grid[x][y]);
+    //     }
+    // }
 
     let m = mouse(0);
     //check if mouse is over the button and clicked
@@ -93,6 +93,7 @@ turbo::go!({
     if gamepad(0).down.pressed() {
         os::client::exec(env::PROJECT_NAME, "input_down", &[]);
     }
+    client::render();
 
     sprite!(
         "Racoon_Main_UpDash_shadow"
