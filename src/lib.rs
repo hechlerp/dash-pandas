@@ -54,7 +54,7 @@ impl GameState {
 
         Self {
             grid,
-            P1Char: PlayerCharacter::new("player1".to_string())
+            P1Char: PlayerCharacter::new("player1".to_string(), 0)
         }
     }
 }

@@ -16,7 +16,7 @@ pub struct ServerGameState {
 }
 
 impl ServerGameState {
-    pub fn new(players: Vec<player::PlayerCharacter>) -> Self {
+    pub fn new() -> Self {
         let mut grid = createBlankGrid();
 
         //borders
@@ -45,40 +45,40 @@ impl ServerGameState {
 
         Self {
             grid,
-            players
+            players: vec![]
         }
     }
 
     pub fn get_grid(&self) -> Vec<Vec<CELLVAL>> {
         return self.grid.clone();
     }
+
+    pub fn updateGrid(mut self, updates: Vec<((usize, usize), CELLVAL)>) {
+        for update in updates {
+            let (grid_pos, next_val) = update;
+            let (grid_x, grid_y) = grid_pos;
+            self.grid[grid_y][grid_x] = next_val;
+        }
+    }
 }
 
-fn init_server(players: Vec<String>) -> ServerGameState {
+fn init_server() -> ServerGameState {
     os::server::log!("initting server");
     os::server::write!(FP_GAME_INIT, true);
-    let initial_state = ServerGameState::new(
-        players
-        .into_iter()
-        .map(|player_id| player::PlayerCharacter::new(player_id))
-        .collect()
-    );
-    // let initial_state = ServerGameState::new(vec![]);
+    let mut initial_state: ServerGameState = ServerGameState::new();
     os::server::write!(FP_GAME_STATE, &initial_state);
     return initial_state;
 }
 
 fn join_lobby(player: String) -> usize {
     os::server::log!("joining lobby");
-    let mut state = os::server::read_or!(ServerGameState, FP_GAME_STATE, init_server(vec![player.clone()]));
+    let mut state = os::server::read_or!(ServerGameState, FP_GAME_STATE, init_server());
     let player_count = state.players.len();
     os::server::log!("{} players", state.players.len());
-    let mut user = player::PlayerCharacter::new(player.clone());
+    let mut user = player::PlayerCharacter::new(player.clone(), if player_count < MAX_PLAYERS {player_count } else { 0 });
     if player_count < MAX_PLAYERS {
-        user.playerNum = player_count;
         state.players.push(user);
     } else {
-        user.playerNum = 0;
         state.players = vec![user];
     }
     return os::server::COMMIT;
@@ -92,6 +92,18 @@ fn leave_lobby(player: String) -> usize {
     return os::server::COMMIT;
 }
 
+fn get_player_by_id(state: &ServerGameState, id: String) -> Option<PlayerCharacter> {
+    return state.players.clone().into_iter().find(|player| player.playerId == id);
+}
+
+fn get_grid(state: &ServerGameState) -> Vec<Vec<CELLVAL>> {
+    return state.get_grid();
+}
+
+fn get_state() -> ServerGameState {
+    return os::server::read_or!(ServerGameState, FP_GAME_STATE, init_server());
+}
+
 
 #[export_name = "turbo/join_server"]
 unsafe extern "C" fn on_server_join() -> usize {
@@ -100,7 +112,7 @@ unsafe extern "C" fn on_server_join() -> usize {
     os::server::log!("user joined!");
     let has_been_initialized: bool = os::server::read_or!(bool, FP_GAME_INIT, false);
     if !has_been_initialized {
-        init_server(vec![userId.clone()]);
+        init_server();
     }
     // return os::server::COMMIT;
     return join_lobby(userId);
@@ -140,5 +152,18 @@ unsafe extern "C" fn on_connect() {
 unsafe extern "C" fn on_attempt_move() -> usize {
     os::server::log!("attempting move...");
     let ( user_id, dir ) = os::server::command!((String, DIRECTIONS));
+    let mut state = get_state();
+    let found_player: Option<PlayerCharacter> = get_player_by_id(&state, user_id);
+    if (found_player == None) {
+        return os::server::CANCEL;
+    }
+    let mut character = found_player.unwrap();
+    let (nextPos, didEncounterFoe) = character.getMovementSpaceInDir(dir, &get_grid(&state));
+    let prev_pos = character.position.clone();
+    character.position = nextPos;
+    if didEncounterFoe {
+        // play anim, win
+    }
+    state.updateGrid(vec![(prev_pos, CELLVAL::Empty), (nextPos, character.assingedCellVal)]);
     return os::server::COMMIT;
 }

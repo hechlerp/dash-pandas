@@ -11,12 +11,13 @@ pub struct PlayerCharacter {
 }
 
 impl PlayerCharacter {
-    pub fn new(player: String) -> Self {
+    pub fn new(player: String, num: usize) -> Self {
+        let mut playerRole: CELLVAL = if num == 0 {CELLVAL::P1} else {CELLVAL::P2};
         Self {
             position: (1, 1), // Position in grid
             playerId: player,
-            assingedCellVal: CELLVAL::NotAssigned,
-            playerNum: 0
+            assingedCellVal: playerRole,
+            playerNum: num
         }
     }
 
@@ -42,10 +43,35 @@ impl PlayerCharacter {
 
             loopCount += 1;
 
-            if Self::isNextStepPosAnEnemy(self, &direction, &grid) {
+            let mut nextPos: (usize, usize);
+            match direction {
+                DIRECTIONS::Up => nextPos = (self.position.0, self.position.1 - 1),
+                DIRECTIONS::Down => nextPos = (self.position.0, self.position.1 + 1),
+                DIRECTIONS::Left => nextPos = (self.position.0 - 1, self.position.1),
+                DIRECTIONS::Right => nextPos = (self.position.0 + 1, self.position.1)
+            }
+            if self.isNextStepPosAnEnemy(nextPos,  &grid) {
                 // Attack enemy
             }
 
+
+
+            Self::move_to(self, nextPos.0, nextPos.1);  
+        }
+
+        Self::WriteInGrid();
+    }
+
+    pub fn getMovementSpaceInDir(&mut self, direction: constants::DIRECTIONS, grid: &Vec<Vec<CELLVAL>>) -> ((usize, usize), bool) {
+        let mut loopCount = 0;
+        let mut maxLoopIterations = 100;
+        let mut didEncounterFoe: bool = false;
+        let mut currentStep: (usize, usize) = (self.position.0, self.position.1);
+        while (loopCount < maxLoopIterations &&
+            !(isNextStepPosCellAWall(self.position.0, self.position.1, &direction, &grid))) {
+
+            loopCount += 1;
+            
             let mut nextPos: (usize, usize);
 
             match direction {
@@ -55,21 +81,20 @@ impl PlayerCharacter {
                 DIRECTIONS::Right => nextPos = (self.position.0 + 1, self.position.1)
             }
 
-            Self::move_to(self, nextPos.0, nextPos.1);  
-        }
+            if self.isNextStepPosAnEnemy(nextPos,&grid) {
+                didEncounterFoe = true;
+                // Attack enemy
+            }
+            
+            currentStep = (nextPos.0, nextPos.1);
+            // Self::move_to(self, nextPos.0, nextPos.1);  
+        } 
+        return (currentStep, didEncounterFoe);
 
-        Self::WriteInGrid();
     }
 
-    pub fn isNextStepPosAnEnemy(&self, direction: &constants::DIRECTIONS, grid: &Vec<Vec<CELLVAL>>) -> bool {
-        let mut nextX = self.position.0;
-        let mut nextY = self.position.1;
-        match direction {
-            DIRECTIONS::Up => nextY += 1,
-            DIRECTIONS::Down => nextY -= 1,
-            DIRECTIONS::Left => nextX -= 1,
-            DIRECTIONS::Right => nextX += 1
-        }
+    pub fn isNextStepPosAnEnemy(&self, nextPos: (usize, usize), grid: &Vec<Vec<CELLVAL>>) -> bool {
+        let (nextX, nextY) = nextPos;
         
         let isPlayerExistsInNextCell = grid[nextY][nextX] == CELLVAL::P1 || grid[nextY][nextX] == CELLVAL::P2;
         let isPlayerInNextCellSelf = grid[nextY][nextX] == self.assingedCellVal;
