@@ -1,3 +1,5 @@
+use constants::DIRECTIONS;
+
 use crate::env::{PROJECT_NAME};
 use crate::*;
 use crate::constants::{MAX_PLAYERS, MAP_DIM_X, MAP_DIM_Y, FP_GAME_STATE, FP_GAME_INIT, CELLVAL};
@@ -25,18 +27,18 @@ impl ServerGameState {
 
         // //walls
 
-        // let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
-        // (9,2), (11,2),
-        // (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
-        // (4,4), (11,4), (15,4),
-        // (3,5), (4,5), (9,5), (11,5),
-        // (1,6), (7,6), (9,6), (13,6), (14,6),
-        // (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
-        // ];
+        let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
+        (9,2), (11,2),
+        (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
+        (4,4), (11,4), (15,4),
+        (3,5), (4,5), (9,5), (11,5),
+        (1,6), (7,6), (9,6), (13,6), (14,6),
+        (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
+        ];
         
-        // for wallTuple in wallSpawns {
-        //     grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
-        // }
+        for wallTuple in wallSpawns {
+            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+        }
 
 
         //players
@@ -56,14 +58,16 @@ impl ServerGameState {
 #[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
 pub struct PlayerCharacter {
     pub position: (usize, usize),
-    pub playerId: String
+    pub playerId: String,
+    pub playerNum: usize
 }
 
 impl PlayerCharacter {
     pub fn new(player: String) -> Self {
         Self {
             position: (MAP_DIM_X / 2, MAP_DIM_Y / 2),
-            playerId: player
+            playerId: player,
+            playerNum: 0
         }
     }
 
@@ -89,13 +93,17 @@ fn init_server(players: Vec<String>) -> ServerGameState {
 fn join_lobby(player: String) -> usize {
     os::server::log!("joining lobby");
     let mut state = os::server::read_or!(ServerGameState, FP_GAME_STATE, init_server(vec![player.clone()]));
-    if state.players.len() <= MAX_PLAYERS {
-        let user = PlayerCharacter::new(player.clone());
+    let player_count = state.players.len();
+    os::server::log!("{} players", state.players.len());
+    let mut user = PlayerCharacter::new(player.clone());
+    if player_count < MAX_PLAYERS {
+        user.playerNum = player_count;
         state.players.push(user);
-        return os::server::COMMIT;
     } else {
-        return os::server::CANCEL;
+        user.playerNum = 0;
+        state.players = vec![user];
     }
+    return os::server::COMMIT;
     
 }
 
@@ -135,11 +143,24 @@ unsafe extern "C" fn on_connect() {
                 // let emote = Emote::try_from_slice(&data).unwrap();
                 // let payload = (user_id, emote);
                 // join_lobby(user_id);
-                os::server::invoke_command(PROJECT_NAME, "join_server", user_id.as_bytes());
+                os::server::enqueue_command (
+                    PROJECT_NAME, 
+                    "join_server", 
+                    user_id.as_bytes(),
+                    os::server::random_number(), 
+                    None
+                );
                 os::server::channel_broadcast(b"asdf");
             }
             Err(_err) => return,
             _ => {}
         }
     }
+}
+
+#[export_name = "turbo/attempt_move"]
+unsafe extern "C" fn on_attempt_move() -> usize {
+    os::server::log!("attempting move...");
+    let ( user_id, dir ) = os::server::command!((String, DIRECTIONS));
+    return os::server::COMMIT;
 }

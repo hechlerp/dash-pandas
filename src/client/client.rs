@@ -58,4 +58,28 @@ pub fn render() {
             text!("press space to join!");
         }
     }
+    
+    let mut isAttemptingMove: bool = false;
+    let player = os::client::user_id().unwrap();
+    let mut dir = DIRECTIONS::Left;
+    if gamepad(0).left.just_pressed() {
+        isAttemptingMove = true;
+        dir = DIRECTIONS::Left;
+    }
+    if gamepad(0).right.just_pressed() {
+        isAttemptingMove = true;
+        dir = DIRECTIONS::Right;
+    }
+    if gamepad(0).up.just_pressed() {
+        isAttemptingMove = true;
+        dir = DIRECTIONS::Up;
+    }
+    if gamepad(0).down.just_pressed() {
+        isAttemptingMove = true;
+        dir = DIRECTIONS::Down;
+    }
+    if isAttemptingMove {
+        let args = borsh::to_vec(&(player, dir)).unwrap();
+        os::client::exec(env::PROJECT_NAME, "attempt_move", &args);
+    }
 }

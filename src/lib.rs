@@ -1,6 +1,6 @@
 mod environment;
 use std::collections::HashMap;
-use constants::CELLVAL;
+use constants::{CELLVAL, DIRECTIONS};
 use environment::{createBlankGrid, createBorders};
 mod constants;
 mod env;
@@ -20,8 +20,8 @@ turbo::cfg! {r#"
 
 turbo::init! {
     struct GameState {
-        frameNum: u32,
-        grid: Vec<Vec<CELLVAL>>
+        pub frameNum: u32,
+        pub grid: Vec<Vec<CELLVAL>>
     } = {
         Self::new()
     }
@@ -30,17 +30,24 @@ turbo::init! {
 impl GameState {
     fn new() -> Self {
         let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
-        let borders: Vec<(usize, usize)> = createBorders();
+        // let borders: Vec<(usize, usize)> = createBorders();
 
-        for wallTuple in borders {
-            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
-            sprite!(
-                "Racoon_Main_UpDash_shadow", x = wallTuple.0 * 32, y = -(wallTuple.1 as isize) * 32
-            );
-        }
-        for wallTuple in wallSpawns {
-            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
-        }
+        // for wallTuple in borders {
+        //     grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+        //     sprite!(
+        //         "Racoon_Main_UpDash_shadow", x = wallTuple.0 * 32, y = -(wallTuple.1 as isize) * 32
+        //     );
+        // }
+        // let wallSpawns: Vec<(usize, usize)> = vec![
+        //     (1,1), (2,1), (3,1), (15,1), (16,1), (9,2), (11,2),
+        //     (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
+        //     (4,4), (11,4), (15,4), (3,5), (4,5), (9,5), (11,5),
+        //     (1,6), (7,6), (9,6), (13,6), (14,6),
+        //     (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
+        // ];
+        // for wallTuple in wallSpawns {
+        //     grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+        // }
 
 
         Self {
@@ -84,18 +91,6 @@ turbo::go!({
     rect!(x = x, y = y, w = w, h = h, color = color, border_radius = 8);
     text!("HELLO!!", x = 50, y = 109);
 
-    if gamepad(0).left.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_left", &[]);
-    }
-    if gamepad(0).right.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_right", &[]);
-    }
-    if gamepad(0).up.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_up", &[]);
-    }
-    if gamepad(0).down.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_down", &[]);
-    }
     client::render();
 
     //sprite!(
@@ -122,31 +117,31 @@ turbo::go!({
                 }
             }
 
-            log!("Nested loop: i = {}, j = {}", i, j);
+            // log!("Nested loop: i = {}, j = {}", i, j);
         }
     }
     state.save();
 });
 
-#[export_name = "turbo/input_left"]
-unsafe extern "C" fn on_input_left() -> usize {
-    os::server::log!("input_left");
-    return os::server::COMMIT;
-}
-#[export_name = "turbo/input_right"]
-unsafe extern "C" fn on_input_right() -> usize {
-    os::server::log!("input_right");
-    return os::server::COMMIT;
-}
+// #[export_name = "turbo/input_left"]
+// unsafe extern "C" fn on_input_left() -> usize {
+//     os::server::log!("input_left");
+//     return os::server::COMMIT;
+// }
+// #[export_name = "turbo/input_right"]
+// unsafe extern "C" fn on_input_right() -> usize {
+//     os::server::log!("input_right");
+//     return os::server::COMMIT;
+// }
 
-#[export_name = "turbo/input_up"]
-unsafe extern "C" fn on_input_up() -> usize {
-    os::server::log!("input_up");
-    return os::server::COMMIT;
-}
+// #[export_name = "turbo/input_up"]
+// unsafe extern "C" fn on_input_up() -> usize {
+//     os::server::log!("input_up");
+//     return os::server::COMMIT;
+// }
 
-#[export_name = "turbo/input_down"]
-unsafe extern "C" fn on_input_down() -> usize {
-    os::server::log!("input_down");
-    return os::server::COMMIT;
-}
+// #[export_name = "turbo/input_down"]
+// unsafe extern "C" fn on_input_down() -> usize {
+//     os::server::log!("input_down");
+//     return os::server::COMMIT;
+// }
