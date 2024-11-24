@@ -1,3 +1,5 @@
+use std::collections::btree_map::Keys;
+
 use crate::*;
 use crate::constants::{FP_GAME_STATE, FP_GAME_INIT};
 use crate::env::{PROJECT_NAME};
@@ -52,9 +54,13 @@ pub fn render() {
 
             let grid = server_game_state.grid;
             
-            
-            for y in 0..constants::MAP_DIM_Y {
-                for x in 0..constants::MAP_DIM_X {
+            if gamepad(0).a.just_pressed() {
+                for y in 0..constants::MAP_DIM_Y {
+                    log!("{:?}", grid[y]);
+                }
+            }
+            for y in 0..grid.len() {
+                for x in 0..grid[y].len() {
                     match grid[y][x] {
                         CELLVAL::Empty => {},
                         CELLVAL::Wall => {
@@ -74,10 +80,34 @@ pub fn render() {
                         },
                         CELLVAL::NotAssigned => {}
                     }
-        
-                    // log!("Nested loop: i = {}, j = {}", i, j);
                 }
             }
+            
+            // for y in 0..constants::MAP_DIM_Y {
+            //     for x in 0..constants::MAP_DIM_X {
+            //         match grid[y][x] {
+            //             CELLVAL::Empty => {},
+            //             CELLVAL::Wall => {
+            //                 sprite!(
+            //                     "dumpster-top", x = x * CELL_SIZE, y = y * CELL_SIZE
+            //                 );
+            //             },
+            //             CELLVAL::P1 => {
+            //                 sprite!(
+            //                     "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
+            //                 );
+            //             },
+            //             CELLVAL::P2 => {
+            //                 sprite!(
+            //                     "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
+            //                 );
+            //             },
+            //             CELLVAL::NotAssigned => {}
+            //         }
+        
+            //         // log!("Nested loop: i = {}, j = {}", i, j);
+            //     }
+            // }
             if player_character != None {
                 let mut confirmed_character = player_character.unwrap();
                 
@@ -103,9 +133,9 @@ pub fn render() {
                     let args = borsh::to_vec(&(client_id, dir)).unwrap();
                     os::client::exec(env::PROJECT_NAME, "attempt_move", &args);
                 }
-                sprite!(
-                    "Racoon_Main_UpDash_shadow", x = confirmed_character.position.0 * CELL_SIZE, y = confirmed_character.position.1 * CELL_SIZE
-                );
+                // sprite!(
+                //     "Racoon_Main_UpDash_shadow", x = confirmed_character.position.0 * CELL_SIZE, y = confirmed_character.position.1 * CELL_SIZE
+                // );
                 // if gamepad(0).start.just_pressed() {
                 //     if let Some(player_character) = player_character {
                 //         // drawCharacter(playerCharacter.position.x, playerCharacter.position.y)
