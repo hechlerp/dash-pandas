@@ -49,6 +49,35 @@ pub fn render() {
             
             let client_id = os::client::user_id().unwrap();
             let player_character = server_game_state.players.into_iter().find(|player| player.playerId == client_id);
+
+            let grid = server_game_state.grid;
+            
+            
+            for y in 0..constants::MAP_DIM_Y {
+                for x in 0..constants::MAP_DIM_X {
+                    match grid[y][x] {
+                        CELLVAL::Empty => {},
+                        CELLVAL::Wall => {
+                            sprite!(
+                                "dumpster-top", x = x * CELL_SIZE, y = y * CELL_SIZE
+                            );
+                        },
+                        CELLVAL::P1 => {
+                            sprite!(
+                                "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
+                            );
+                        },
+                        CELLVAL::P2 => {
+                            sprite!(
+                                "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
+                            );
+                        },
+                        CELLVAL::NotAssigned => {}
+                    }
+        
+                    // log!("Nested loop: i = {}, j = {}", i, j);
+                }
+            }
             if player_character != None {
                 let mut confirmed_character = player_character.unwrap();
                 

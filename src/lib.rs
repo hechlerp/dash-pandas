@@ -1,6 +1,6 @@
 mod environment;
 use std::collections::HashMap;
-use constants::{CELLVAL, DIRECTIONS};
+use constants::{CELLVAL, CELL_SIZE, DIRECTIONS};
 use environment::{createBlankGrid, createBorders};
 use gameserver::PlayerCharacter;
 mod constants;
@@ -21,7 +21,7 @@ turbo::cfg! {r#"
 
 turbo::init! {
     struct GameState {
-        pub grid: Vec<Vec<CELLVAL>>,
+        // pub grid: Vec<Vec<CELLVAL>>,
         pub P1Char: PlayerCharacter,
     } = {
         Self::new()
@@ -30,31 +30,31 @@ turbo::init! {
 
 impl GameState {
     fn new() -> Self {
-        let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
-        let wallSpawns: Vec<(usize, usize)> = vec![(3, 1)];
-        let borders: Vec<(usize, usize)> = createBorders();
-        let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
-        (9,2), (11,2),
-        (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
-        (4,4), (11,4), (15,4),
-        (3,5), (4,5), (9,5), (11,5),
-        (1,6), (7,6), (9,6), (13,6), (14,6),
-        (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
-        ];
+        // let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
+        // let wallSpawns: Vec<(usize, usize)> = vec![(3, 1)];
+        // let borders: Vec<(usize, usize)> = createBorders();
+        // let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
+        // (9,2), (11,2),
+        // (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
+        // (4,4), (11,4), (15,4),
+        // (3,5), (4,5), (9,5), (11,5),
+        // (1,6), (7,6), (9,6), (13,6), (14,6),
+        // (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
+        // ];
 
-        for wallTuple in borders {
-            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
-            sprite!(
-                "dumpster", x = wallTuple.0 * 32, y = -(wallTuple.1 as isize) * 32
-            );
-        }
-        for wallTuple in wallSpawns {
-            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
-        }
+        // for wallTuple in borders {
+        //     grid[wallTuple.1][wallTuple.0] = CELLVAL::Wall;
+        //     // sprite!(
+        //     //     "dumpster", x = wallTuple.0 * CELL_SIZE, y = wallTuple.1 * CELL_SIZE
+        //     // );
+        // }
+        // for wallTuple in wallSpawns {
+        //     grid[wallTuple.1][wallTuple.0] = CELLVAL::Wall;
+        // }
 
 
         Self {
-            grid,
+            // grid,
             P1Char: PlayerCharacter::new("player1".to_string(), 0)
         }
     }
@@ -81,31 +81,31 @@ turbo::go!({
     rect!(x = x, y = y, w = w, h = h, color = color, border_radius = 8);
     text!("HELLO!!", x = 50, y = 109);
 
-    for j in 0..constants::MAP_DIM_Y {
-        for i in 0..constants::MAP_DIM_X {
-            match state.grid[i][j] {
-                CELLVAL::Empty => {},
-                CELLVAL::Wall => {
-                    sprite!(
-                        "dumpster-top", x = i * 32, y = (j as isize) * 32
-                    );
-                },
-                CELLVAL::P1 => {
-                    sprite!(
-                        "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
-                    );
-                },
-                CELLVAL::P2 => {
-                    sprite!(
-                        "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
-                    );
-                },
-                CELLVAL::NotAssigned => {}
-            }
+    // for y in 0..constants::MAP_DIM_Y {
+    //     for x in 0..constants::MAP_DIM_X {
+    //         match state.grid[y][x] {
+    //             CELLVAL::Empty => {},
+    //             CELLVAL::Wall => {
+    //                 sprite!(
+    //                     "dumpster-top", x = x * CELL_SIZE, y = y * CELL_SIZE
+    //                 );
+    //             },
+    //             CELLVAL::P1 => {
+    //                 sprite!(
+    //                     "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
+    //                 );
+    //             },
+    //             CELLVAL::P2 => {
+    //                 sprite!(
+    //                     "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
+    //                 );
+    //             },
+    //             CELLVAL::NotAssigned => {}
+    //         }
 
-            // log!("Nested loop: i = {}, j = {}", i, j);
-        }
-    }
+    //         // log!("Nested loop: i = {}, j = {}", i, j);
+    //     }
+    // }
     client::render();
 
     
