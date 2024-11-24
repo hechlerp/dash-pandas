@@ -1,7 +1,6 @@
 use crate::env::{PROJECT_NAME};
 use crate::*;
-use crate::constants::{MAX_PLAYERS, MAP_DIM_X, MAP_DIM_Y, FP_GAME_STATE, FP_GAME_INIT};
-
+use crate::constants::{MAX_PLAYERS, MAP_DIM_X, MAP_DIM_Y, FP_GAME_STATE, FP_GAME_INIT, CELLVAL};
 pub fn join_server() {
 
     os::client::exec(PROJECT_NAME, "join_server", &[]);
@@ -16,11 +15,32 @@ pub struct ServerGameState {
 
 impl ServerGameState {
     pub fn new(players: Vec<PlayerCharacter>) -> Self {
-        let mut grid = createBlankGrid();
+        let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
+
+        //borders
         let borders = createBorders();
         for wall_tuple in borders {
             grid[wall_tuple.0][wall_tuple.1] = CELLVAL::Wall;
         }
+
+        //walls
+
+        let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
+        (9,2), (11,2),
+        (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
+        (4,4), (11,4), (15,4),
+        (3,5), (4,5), (9,5), (11,5),
+        (1,6), (7,6), (9,6), (13,6), (14,6),
+        (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
+        ];
+        
+        for wallTuple in wallSpawns {
+            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+        }
+
+
+        //players
+
         Self {
             grid,
             players
