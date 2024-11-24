@@ -33,23 +33,24 @@ impl GameState {
         let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
         let wallSpawns: Vec<(usize, usize)> = vec![(3, 1)];
         let borders: Vec<(usize, usize)> = createBorders();
+        let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
+        (9,2), (11,2),
+        (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
+        (4,4), (11,4), (15,4),
+        (3,5), (4,5), (9,5), (11,5),
+        (1,6), (7,6), (9,6), (13,6), (14,6),
+        (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
+        ];
 
-        // for wallTuple in borders {
-        //     grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
-        //     sprite!(
-        //         "Racoon_Main_UpDash_shadow", x = wallTuple.0 * 32, y = -(wallTuple.1 as isize) * 32
-        //     );
-        // }
-        // let wallSpawns: Vec<(usize, usize)> = vec![
-        //     (1,1), (2,1), (3,1), (15,1), (16,1), (9,2), (11,2),
-        //     (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
-        //     (4,4), (11,4), (15,4), (3,5), (4,5), (9,5), (11,5),
-        //     (1,6), (7,6), (9,6), (13,6), (14,6),
-        //     (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
-        // ];
-        // for wallTuple in wallSpawns {
-        //     grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
-        // }
+        for wallTuple in borders {
+            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+            sprite!(
+                "dumpster", x = wallTuple.0 * 32, y = -(wallTuple.1 as isize) * 32
+            );
+        }
+        for wallTuple in wallSpawns {
+            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+        }
 
 
         Self {
@@ -86,7 +87,7 @@ turbo::go!({
                 CELLVAL::Empty => {},
                 CELLVAL::Wall => {
                     sprite!(
-                        "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
+                        "dumpster-top", x = i * 32, y = (j as isize) * 32
                     );
                 },
                 CELLVAL::P1 => {

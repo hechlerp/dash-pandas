@@ -47,7 +47,7 @@ pub fn render() {
             if gamepad(0).start.just_pressed() {
                 if let Some(player_character) = player_character {
                     // drawCharacter(playerCharacter.position.x, playerCharacter.position.y)
-                    log!("{:?}", player_character.position);
+                    //log!("{:?}", player_character.position);
                 }
             }
         }

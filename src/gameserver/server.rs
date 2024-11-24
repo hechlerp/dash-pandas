@@ -4,7 +4,7 @@ use crate::constants::{MAX_PLAYERS, DIRECTIONS, CELLVAL, MAP_DIM_X, MAP_DIM_Y, F
 use crate::gameserver::player;
 
 pub fn join_server() {
-    log!("attempting to join server");
+
     os::client::exec(PROJECT_NAME, "join_server", &[]);
     
 }
@@ -25,7 +25,7 @@ impl ServerGameState {
             grid[wall_tuple.0][wall_tuple.1] = CELLVAL::Wall;
         }
 
-        // //walls
+        //walls
 
         let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
         (9,2), (11,2),
