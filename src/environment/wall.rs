@@ -2,16 +2,18 @@
 use crate::*;
 use crate::constants::{self, DIRECTIONS, CELLVAL, MAP_DIM_X, MAP_DIM_Y};
 
-pub fn isWall(currentX: usize, currentY: usize, direction: constants::DIRECTIONS, state: GameState) -> bool {
+pub fn isNextStepPosCellAWall(currentX: usize, currentY: usize, direction: &constants::DIRECTIONS, grid: &Vec<Vec<CELLVAL>>) -> bool {
     let mut nextX = currentX;
     let mut nextY = currentY;
+
     match direction{
-        DIRECTIONS::Up=>nextY += 1,
-        DIRECTIONS::Down=>nextY -= 1,
+        DIRECTIONS::Up=>nextY -= 1,
+        DIRECTIONS::Down=>nextY += 1,
         DIRECTIONS::Left=>nextX -= 1,
         DIRECTIONS::Right=>nextX += 1
     }
-    return state.grid[nextY][nextX] == CELLVAL::Wall;
+
+    return grid[nextX][nextY] == CELLVAL::Wall;
 
 }
 

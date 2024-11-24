@@ -1,6 +1,7 @@
 use crate::env::{PROJECT_NAME};
 use crate::*;
-use crate::constants::{MAX_PLAYERS, MAP_DIM_X, MAP_DIM_Y, FP_GAME_STATE, FP_GAME_INIT};
+use crate::constants::{MAX_PLAYERS, DIRECTIONS, CELLVAL, MAP_DIM_X, MAP_DIM_Y, FP_GAME_STATE, FP_GAME_INIT};
+use crate::server::player;
 
 pub fn join_server() {
 
@@ -11,11 +12,11 @@ pub fn join_server() {
 #[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
 struct ServerGameState {
     grid: Vec<Vec<CELLVAL>>,
-    players: Vec<PlayerCharacter>
+    players: Vec<player::PlayerCharacter>
 }
 
 impl ServerGameState {
-    fn new(players: Vec<PlayerCharacter>) -> Self {
+    fn new(players: Vec<player::PlayerCharacter>) -> Self {
         let mut grid = createBlankGrid();
         let borders = createBorders();
         for wall_tuple in borders {
@@ -33,31 +34,14 @@ impl ServerGameState {
 }
 
 
-#[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
-struct PlayerCharacter {
-    position: (usize, usize),
-    playerId: String
-}
 
-impl PlayerCharacter {
-    fn new(player: String) -> Self {
-        Self {
-            position: (MAP_DIM_X / 2, MAP_DIM_Y / 2),
-            playerId: player
-        }
-    }
-
-    // fn move(nextX: usize, nextY: usize) {
-    //     position = (nextX, nextY);
-    // }
-}
 
 fn init_server(players: Vec<String>) -> ServerGameState {
     os::server::write!(FP_GAME_INIT, true);
     let initial_state = ServerGameState::new(
         players
         .into_iter()
-        .map(|player_id| PlayerCharacter::new(player_id))
+        .map(|player_id| player::PlayerCharacter::new(player_id))
         .collect()
     );
     os::server::write!(FP_GAME_STATE, initial_state);
@@ -67,7 +51,7 @@ fn init_server(players: Vec<String>) -> ServerGameState {
 fn join_lobby(player: String) -> usize {
     let mut state = os::server::read!(ServerGameState, FP_GAME_STATE);
     if state.players.len() <= MAX_PLAYERS {
-        let user = PlayerCharacter::new(player.clone());
+        let user = player::PlayerCharacter::new(player.clone());
         state.players.push(user);
         return os::server::COMMIT;
     } else {
