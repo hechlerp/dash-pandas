@@ -28,6 +28,8 @@ turbo::init! {
     }
 }
 
+x =
+
 impl GameState {
     fn new() -> Self {
         let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
@@ -57,6 +59,8 @@ impl GameState {
             grid,
             P1Char: PlayerCharacter::new("player1".to_string())
         }
+
+        let mut screenshake_timer: i32=  0;
     }
 }
 
@@ -103,12 +107,24 @@ turbo::go!({
                 CELLVAL::NotAssigned => {}
             }
 
-            // log!("Nested loop: i = {}, j = {}", i, j);
+            log!("Nested loop: i = {}, j = {}", i, j);
         }
     }
     client::render();
 
-    
+    //test input - delete later
+    if gamepad(0).left.just_pressed() {
+        state.screenshake_timer = 60;
+    }
+
+    //duration of screenshake
+    if state.screenshake_timer > 0 {
+        set_camera(rand() as i32 % 3, rand() as i32 % 3);
+        screenshake_timer -= 1;
+    } else {
+        set_camera(0, 0);
+    }
+
     state.save();
 });
 
