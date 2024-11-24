@@ -93,6 +93,7 @@ turbo::go!({
         state.P1Char.moveInDirection(constants::DIRECTIONS::Down, &state.grid);
         log!("DEBUG: {:?}", state.P1Char.position);
     }
+    client::render();
 
     
     state.save();
