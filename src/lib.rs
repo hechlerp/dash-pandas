@@ -93,6 +93,9 @@ turbo::go!({
         os::client::exec(env::PROJECT_NAME, "input_down", &[]);
     }
 
+    sprite!(
+        "Racoon_Main_UpDash_shadow"
+    );
     state.save();
 });
 
