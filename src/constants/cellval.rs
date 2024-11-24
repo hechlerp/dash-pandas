@@ -7,5 +7,6 @@ pub enum CELLVAL {
     Empty,
     Wall,
     P1,
-    P2
+    P2,
+    NotAssigned
 }

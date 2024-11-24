@@ -1,7 +1,8 @@
 mod environment;
 use std::collections::HashMap;
-use constants::CELLVAL;
+use constants::{CELLVAL, DIRECTIONS};
 use environment::{createBlankGrid, createBorders};
+use gameserver::PlayerCharacter;
 mod constants;
 mod env;
 mod client;
@@ -20,8 +21,8 @@ turbo::cfg! {r#"
 
 turbo::init! {
     struct GameState {
-        frameNum: u32,
-        grid: Vec<Vec<CELLVAL>>
+        pub grid: Vec<Vec<CELLVAL>>,
+        pub P1Char: PlayerCharacter,
     } = {
         Self::new()
     }
@@ -30,6 +31,7 @@ turbo::init! {
 impl GameState {
     fn new() -> Self {
         let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
+        let wallSpawns: Vec<(usize, usize)> = vec![(3, 1)];
         let borders: Vec<(usize, usize)> = createBorders();
         let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
         (9,2), (11,2),
@@ -53,30 +55,17 @@ impl GameState {
 
         Self {
             grid,
-            frameNum: 0
+            P1Char: PlayerCharacter::new("player1".to_string())
         }
     }
 }
 
 turbo::go!({
     let mut state = GameState::load();
+
     clear!(0xADD8E6FF);
     let (x, y, w, h) = (36, 102, 60, 20);
     let mut color = 0x00008BFF;
-
-    state.frameNum += 1;
-
-    // log!("DEBUG: {:?}", state.frameNum);
-
-    // // debug all grid valuse with frame number
-    // for y in 0..constants::MAP_DIM_Y {
-
-    //     log!("NEXT ROW");
-
-    //     for x in 0..constants::MAP_DIM_X {
-    //         log!("DEBUG: frameNum: {}, grid[{}][{}]: {:?}", state.frameNum, x, y, state.grid[x][y]);
-    //     }
-    // }
 
     let m = mouse(0);
     //check if mouse is over the button and clicked
@@ -92,23 +81,6 @@ turbo::go!({
     rect!(x = x, y = y, w = w, h = h, color = color, border_radius = 8);
     text!("HELLO!!", x = 50, y = 109);
 
-    if gamepad(0).left.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_left", &[]);
-    }
-    if gamepad(0).right.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_right", &[]);
-    }
-    if gamepad(0).up.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_up", &[]);
-    }
-    if gamepad(0).down.pressed() {
-        os::client::exec(env::PROJECT_NAME, "input_down", &[]);
-    }
-    client::render();
-
-    //sprite!(
-    //    "Racoon_Main_UpDash_shadow"
-    //);
     for j in 0..constants::MAP_DIM_Y {
         for i in 0..constants::MAP_DIM_X {
             match state.grid[i][j] {
@@ -127,34 +99,38 @@ turbo::go!({
                     sprite!(
                         "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
                     );
-                }
+                },
+                CELLVAL::NotAssigned => {}
             }
 
-            log!("Nested loop: i = {}, j = {}", i, j);
+            // log!("Nested loop: i = {}, j = {}", i, j);
         }
     }
+    client::render();
+
+    
     state.save();
 });
 
-#[export_name = "turbo/input_left"]
-unsafe extern "C" fn on_input_left() -> usize {
-    os::server::log!("input_left");
-    return os::server::COMMIT;
-}
-#[export_name = "turbo/input_right"]
-unsafe extern "C" fn on_input_right() -> usize {
-    os::server::log!("input_right");
-    return os::server::COMMIT;
-}
+// #[export_name = "turbo/input_left"]
+// unsafe extern "C" fn on_input_left() -> usize {
+//     os::server::log!("input_left");
+//     return os::server::COMMIT;
+// }
+// #[export_name = "turbo/input_right"]
+// unsafe extern "C" fn on_input_right() -> usize {
+//     os::server::log!("input_right");
+//     return os::server::COMMIT;
+// }
 
-#[export_name = "turbo/input_up"]
-unsafe extern "C" fn on_input_up() -> usize {
-    os::server::log!("input_up");
-    return os::server::COMMIT;
-}
+// #[export_name = "turbo/input_up"]
+// unsafe extern "C" fn on_input_up() -> usize {
+//     os::server::log!("input_up");
+//     return os::server::COMMIT;
+// }
 
-#[export_name = "turbo/input_down"]
-unsafe extern "C" fn on_input_down() -> usize {
-    os::server::log!("input_down");
-    return os::server::COMMIT;
-}
+// #[export_name = "turbo/input_down"]
+// unsafe extern "C" fn on_input_down() -> usize {
+//     os::server::log!("input_down");
+//     return os::server::COMMIT;
+// }
