@@ -9,13 +9,13 @@ pub fn join_server() {
 }
 
 #[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
-struct ServerGameState {
-    grid: Vec<Vec<CELLVAL>>,
-    players: Vec<PlayerCharacter>
+pub struct ServerGameState {
+    pub grid: Vec<Vec<CELLVAL>>,
+    pub players: Vec<PlayerCharacter>
 }
 
 impl ServerGameState {
-    fn new(players: Vec<PlayerCharacter>) -> Self {
+    pub fn new(players: Vec<PlayerCharacter>) -> Self {
         let mut grid = createBlankGrid();
         let borders = createBorders();
         for wall_tuple in borders {
@@ -27,20 +27,20 @@ impl ServerGameState {
         }
     }
 
-    fn get_grid(&self) -> Vec<Vec<CELLVAL>> {
+    pub fn get_grid(&self) -> Vec<Vec<CELLVAL>> {
         return self.grid.clone();
     }
 }
 
 
 #[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
-struct PlayerCharacter {
-    position: (usize, usize),
-    playerId: String
+pub struct PlayerCharacter {
+    pub position: (usize, usize),
+    pub playerId: String
 }
 
 impl PlayerCharacter {
-    fn new(player: String) -> Self {
+    pub fn new(player: String) -> Self {
         Self {
             position: (MAP_DIM_X / 2, MAP_DIM_Y / 2),
             playerId: player
