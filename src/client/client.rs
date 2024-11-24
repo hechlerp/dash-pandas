@@ -62,8 +62,6 @@ pub fn render() {
                 }
             }
 
-            log!("GRID");
-            log!("{:?}", grid);
             for y in 0..grid.len() {
                 for x in 0..grid[y].len() {
                     match grid[y][x] {
