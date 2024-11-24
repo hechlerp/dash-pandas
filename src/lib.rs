@@ -2,6 +2,7 @@ mod environment;
 use std::collections::HashMap;
 use constants::{CELLVAL, DIRECTIONS};
 use environment::{createBlankGrid, createBorders};
+use gameserver::PlayerCharacter;
 mod constants;
 mod env;
 mod client;
@@ -20,8 +21,8 @@ turbo::cfg! {r#"
 
 turbo::init! {
     struct GameState {
-        pub frameNum: u32,
-        pub grid: Vec<Vec<CELLVAL>>
+        pub grid: Vec<Vec<CELLVAL>>,
+        pub P1Char: PlayerCharacter,
     } = {
         Self::new()
     }
@@ -30,7 +31,8 @@ turbo::init! {
 impl GameState {
     fn new() -> Self {
         let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
-        // let borders: Vec<(usize, usize)> = createBorders();
+        let wallSpawns: Vec<(usize, usize)> = vec![(3, 1)];
+        let borders: Vec<(usize, usize)> = createBorders();
 
         // for wallTuple in borders {
         //     grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
@@ -52,30 +54,17 @@ impl GameState {
 
         Self {
             grid,
-            frameNum: 0
+            P1Char: PlayerCharacter::new("player1".to_string())
         }
     }
 }
 
 turbo::go!({
     let mut state = GameState::load();
+
     clear!(0xADD8E6FF);
     let (x, y, w, h) = (36, 102, 60, 20);
     let mut color = 0x00008BFF;
-
-    state.frameNum += 1;
-
-    // log!("DEBUG: {:?}", state.frameNum);
-
-    // // debug all grid valuse with frame number
-    // for y in 0..constants::MAP_DIM_Y {
-
-    //     log!("NEXT ROW");
-
-    //     for x in 0..constants::MAP_DIM_X {
-    //         log!("DEBUG: frameNum: {}, grid[{}][{}]: {:?}", state.frameNum, x, y, state.grid[x][y]);
-    //     }
-    // }
 
     let m = mouse(0);
     //check if mouse is over the button and clicked
@@ -91,11 +80,6 @@ turbo::go!({
     rect!(x = x, y = y, w = w, h = h, color = color, border_radius = 8);
     text!("HELLO!!", x = 50, y = 109);
 
-    client::render();
-
-    //sprite!(
-    //    "Racoon_Main_UpDash_shadow"
-    //);
     for j in 0..constants::MAP_DIM_Y {
         for i in 0..constants::MAP_DIM_X {
             match state.grid[i][j] {
@@ -114,12 +98,16 @@ turbo::go!({
                     sprite!(
                         "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
                     );
-                }
+                },
+                CELLVAL::NotAssigned => {}
             }
 
             // log!("Nested loop: i = {}, j = {}", i, j);
         }
     }
+    client::render();
+
+    
     state.save();
 });
 

@@ -1,8 +1,8 @@
-use constants::DIRECTIONS;
-
 use crate::env::{PROJECT_NAME};
 use crate::*;
-use crate::constants::{MAX_PLAYERS, MAP_DIM_X, MAP_DIM_Y, FP_GAME_STATE, FP_GAME_INIT, CELLVAL};
+use crate::constants::{MAX_PLAYERS, DIRECTIONS, CELLVAL, MAP_DIM_X, MAP_DIM_Y, FP_GAME_STATE, FP_GAME_INIT};
+use crate::gameserver::player;
+
 pub fn join_server() {
     log!("attempting to join server");
     os::client::exec(PROJECT_NAME, "join_server", &[]);
@@ -11,13 +11,13 @@ pub fn join_server() {
 
 #[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
 pub struct ServerGameState {
-    pub grid: Vec<Vec<CELLVAL>>,
-    pub players: Vec<PlayerCharacter>
+   pub grid: Vec<Vec<CELLVAL>>,
+   pub players: Vec<player::PlayerCharacter>
 }
 
 impl ServerGameState {
-    pub fn new(players: Vec<PlayerCharacter>) -> Self {
-        let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
+    pub fn new(players: Vec<player::PlayerCharacter>) -> Self {
+        let mut grid = createBlankGrid();
 
         //borders
         let borders = createBorders();
@@ -54,35 +54,13 @@ impl ServerGameState {
     }
 }
 
-
-#[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
-pub struct PlayerCharacter {
-    pub position: (usize, usize),
-    pub playerId: String,
-    pub playerNum: usize
-}
-
-impl PlayerCharacter {
-    pub fn new(player: String) -> Self {
-        Self {
-            position: (MAP_DIM_X / 2, MAP_DIM_Y / 2),
-            playerId: player,
-            playerNum: 0
-        }
-    }
-
-    // fn move(nextX: usize, nextY: usize) {
-    //     position = (nextX, nextY);
-    // }
-}
-
 fn init_server(players: Vec<String>) -> ServerGameState {
     os::server::log!("initting server");
     os::server::write!(FP_GAME_INIT, true);
     let initial_state = ServerGameState::new(
         players
         .into_iter()
-        .map(|player_id| PlayerCharacter::new(player_id))
+        .map(|player_id| player::PlayerCharacter::new(player_id))
         .collect()
     );
     // let initial_state = ServerGameState::new(vec![]);
@@ -95,7 +73,7 @@ fn join_lobby(player: String) -> usize {
     let mut state = os::server::read_or!(ServerGameState, FP_GAME_STATE, init_server(vec![player.clone()]));
     let player_count = state.players.len();
     os::server::log!("{} players", state.players.len());
-    let mut user = PlayerCharacter::new(player.clone());
+    let mut user = player::PlayerCharacter::new(player.clone());
     if player_count < MAX_PLAYERS {
         user.playerNum = player_count;
         state.players.push(user);
