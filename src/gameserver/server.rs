@@ -29,13 +29,13 @@ impl ServerGameState {
 
         //walls
 
-        let wallSpawns: Vec<(usize, usize)> = vec![/* (1,1), (2,1), (3,1), (15,1), (16,1),
+        let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
         (9,2), (11,2),
         (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
         (4,4), (11,4), (15,4),
         (3,5), (4,5), (9,5), (11,5),
         (1,6), (7,6), (9,6), (13,6), (14,6),
-        (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7) */
+        (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
         ];
         
         for wallTuple in wallSpawns {
@@ -65,9 +65,9 @@ impl ServerGameState {
         }
     }
 
-    pub fn win_game(&mut self, winner: &PlayerCharacter) {
+    pub fn win_game(&mut self, winner: usize) {
         self.is_winner = true;
-        self.winning_player_num = winner.playerNum
+        self.winning_player_num = winner;
     }
 }
 
@@ -111,8 +111,17 @@ fn leave_lobby(player: String) -> usize {
     return os::server::COMMIT;
 }
 
-fn get_player_by_id(state: &ServerGameState, id: String) -> Option<PlayerCharacter> {
-    return state.players.clone().into_iter().find(|player| player.playerId == id);
+fn get_player_by_id(state: &mut ServerGameState, id: String, callback: &mut impl FnMut(&mut PlayerCharacter, &mut ServerGameState) -> ServerGameState) -> ServerGameState {
+    let mut clonedState = state.clone();
+    for (i, player) in state.players.iter_mut().enumerate() {
+        if player.playerId == id {
+            let mut nextState = callback(player, &mut clonedState);
+            nextState.players[i] = player.clone();
+            return nextState;
+        }
+    }
+    return state.clone();
+    // state.players.iter_mut().find(|player| player.playerId == id);
 }
 
 fn get_grid(state: &ServerGameState) -> Vec<Vec<CELLVAL>> {
@@ -172,21 +181,23 @@ unsafe extern "C" fn on_attempt_move() -> usize {
     os::server::log!("attempting move...");
     let ( user_id, dir ) = os::server::command!((String, DIRECTIONS));
     let mut state = get_state();
-    let found_player: Option<PlayerCharacter> = get_player_by_id(&state, user_id);
-    if (found_player == None) {
-        return os::server::CANCEL;
-    }
-    let mut character = found_player.unwrap();
-    let (nextPos, didEncounterFoe) = /* ((1,1), false); */ character.getMovementSpaceInDir(dir, &get_grid(&state));
-    let prev_pos = character.position.clone();
-    character.position = nextPos;
-    if didEncounterFoe {
-        state.win_game(&character);
-    }
-    os::server::log!("{:?}", nextPos);
-    if nextPos.0 != prev_pos.0 || nextPos.1 != prev_pos.1 {
-        state.updateGrid(vec![(prev_pos, CELLVAL::Empty), (nextPos, character.assingedCellVal)]);
-    }
+    state = get_player_by_id(&mut state, user_id, &mut |character: &mut PlayerCharacter, lowerLevelState: &mut ServerGameState| {
+        let (nextPos, didEncounterFoe) = /* ((1,1), false); */ character.getMovementSpaceInDir(dir.clone(), &get_grid(&lowerLevelState));
+        let prev_pos: (usize, usize) = character.position.clone();
+        character.position = nextPos;
+        if didEncounterFoe {
+            lowerLevelState.win_game(character.playerNum);
+        }
+        os::server::log!("{:?}", character.position);
+        os::server::log!("{:?}", nextPos);
+        if nextPos.0 != prev_pos.0 || nextPos.1 != prev_pos.1 {
+            lowerLevelState.updateGrid(vec![(prev_pos, CELLVAL::Empty), (nextPos, character.assingedCellVal.clone())]);
+        }
+        
+        return lowerLevelState.clone();
+    });
+
+    
     os::server::write!(FP_GAME_STATE, state);
     return os::server::COMMIT;
 }
@@ -196,12 +207,11 @@ unsafe extern "C" fn on_auto_win() -> usize {
     
     let user_id = os::server::command!(String);
     let mut state = get_state();
-    let found_player: Option<PlayerCharacter> = get_player_by_id(&state, user_id);
-    if (found_player == None) {
-        return os::server::CANCEL;
-    }
-    let mut character = found_player.unwrap();
-    state.win_game(&character);
+    state = get_player_by_id(&mut state, user_id, &mut |character: &mut PlayerCharacter, lowerLevelState: &mut ServerGameState| {
+        lowerLevelState.win_game(character.playerNum);
+        return lowerLevelState.clone();
+
+    });
     os::server::write!(FP_GAME_STATE, state);
     return os::server::COMMIT;
 }
@@ -213,6 +223,7 @@ unsafe extern "C" fn on_reset() -> usize {
     let mut state = ServerGameState::new();
     for player in old_state.players {
         state.players.push(PlayerCharacter::new(player.playerId, player.playerNum));
+        state.updateGrid(vec![(player.position, player.assingedCellVal.clone())]);
     }
     os::server::write!(FP_GAME_STATE, state);
 

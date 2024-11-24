@@ -59,8 +59,8 @@ impl GameState {
         Self {
             // grid,
             P1Char: PlayerCharacter::new("player1".to_string(), 0),
-            screenshake_timer: 0,
-            move_delay_timer: 0
+            screenshake_timer: 0.,
+            move_delay_timer: 0.
         }
     }
 }
@@ -118,9 +118,9 @@ turbo::go!({
     //screenshake
 
     //test input - convert to successful movement_end event
-    if gamepad(0).left.just_pressed() {
-        state.screenshake_timer = (8 * 60 / 60) as f32;
-    }
+    // if gamepad(0).left.just_pressed() {
+    //     state.screenshake_timer = (8 * 60 / 60) as f32;
+    // }
 
     //shake screen for timer duration of screenshake
     if state.screenshake_timer > 0.0 {

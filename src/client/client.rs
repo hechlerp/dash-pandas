@@ -62,8 +62,10 @@ pub fn render() {
                 }
             }
 
-            log!("GRID");
-            log!("{:?}", grid);
+            if gamepad(0).b.just_pressed() {
+                log!("GRID");
+                log!("{:?}", grid);
+            }
             for y in 0..grid.len() {
                 for x in 0..grid[y].len() {
                     match grid[y][x] {
@@ -74,7 +76,6 @@ pub fn render() {
                             );
                         },
                         CELLVAL::P1 => {
-                            log!("P1 Pos: {}, {}", x, y);
                             sprite!(
                                 "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
                             );
