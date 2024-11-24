@@ -111,14 +111,14 @@ turbo::go!({
     // }
     client::render();
 
-    //test input - delete later
+    //test input - convert to successful movement_end event
     if gamepad(0).left.just_pressed() {
-        state.screenshake_timer = 60;
+        state.screenshake_timer = 8;
     }
 
-    //duration of screenshake
+    //shake screen for timer duration of screenshake
     if state.screenshake_timer > 0 {
-        set_camera(rand() as i32 % 3, rand() as i32 % 3);
+        set_camera(rand() as i32 % 8, rand() as i32 % 8);
         state.screenshake_timer -= 1;
     } else {
         set_camera(0, 0);
