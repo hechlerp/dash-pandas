@@ -53,7 +53,7 @@ impl ServerGameState {
         return self.grid.clone();
     }
 
-    pub fn updateGrid(mut self, updates: Vec<((usize, usize), CELLVAL)>) {
+    pub fn updateGrid(&mut self, updates: Vec<((usize, usize), CELLVAL)>) {
         for update in updates {
             let (grid_pos, next_val) = update;
             let (grid_x, grid_y) = grid_pos;
@@ -81,6 +81,7 @@ fn join_lobby(player: String) -> usize {
     } else {
         state.players = vec![user];
     }
+    os::server::write!(FP_GAME_STATE, state);
     return os::server::COMMIT;
     
 }
@@ -164,6 +165,24 @@ unsafe extern "C" fn on_attempt_move() -> usize {
     if didEncounterFoe {
         // play anim, win
     }
-    state.updateGrid(vec![(prev_pos, CELLVAL::Empty), (nextPos, character.assingedCellVal)]);
+    os::server::log!("{:?}", nextPos);
+    if nextPos.0 != prev_pos.0 || nextPos.1 != prev_pos.1 {
+        state.updateGrid(vec![(prev_pos, CELLVAL::Empty), (nextPos, character.assingedCellVal)]);
+    }
+    os::server::write!(FP_GAME_STATE, state);
+    return os::server::COMMIT;
+}
+
+#[export_name = "turbo/reset_game"]
+unsafe extern "C" fn on_reset() -> usize {
+    let mut old_state = get_state();
+
+    let mut state = ServerGameState::new();
+    for player in old_state.players {
+        state.players.push(PlayerCharacter::new(player.playerId, player.playerNum));
+    }
+    os::server::write!(FP_GAME_STATE, state);
+
+
     return os::server::COMMIT;
 }
