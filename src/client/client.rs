@@ -42,7 +42,7 @@ pub fn render() {
         .and_then(|file| ServerGameState::try_from_slice(&file.contents).ok());
 
     if gamepad(0).start.pressed() {
-        os::client::exec(PROJECT_NAME, "reset_game", &[]);
+        //os::client::exec(PROJECT_NAME, "reset_game", &[]);
     }
     
     match (server_inited, server_game_state) {
