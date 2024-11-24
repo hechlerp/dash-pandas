@@ -41,7 +41,7 @@ pub fn render() {
         .data
         .and_then(|file| ServerGameState::try_from_slice(&file.contents).ok());
 
-    if gamepad(0).start.pressed() {
+    if gamepad(0).start.just_pressed() {
         os::client::exec(PROJECT_NAME, "reset_game", &[]);
     }
     
@@ -82,74 +82,54 @@ pub fn render() {
                     }
                 }
             }
+            if server_game_state.is_winner {
+                let msg: String = format!("Player {} wins! Space to restart.", server_game_state.winning_player_num + 1);
+                text!(&msg, absolute = true, x = 175, y = 144, color = 0xff0000ff);
+            }
             
-            // for y in 0..constants::MAP_DIM_Y {
-            //     for x in 0..constants::MAP_DIM_X {
-            //         match grid[y][x] {
-            //             CELLVAL::Empty => {},
-            //             CELLVAL::Wall => {
-            //                 sprite!(
-            //                     "dumpster-top", x = x * CELL_SIZE, y = y * CELL_SIZE
-            //                 );
-            //             },
-            //             CELLVAL::P1 => {
-            //                 sprite!(
-            //                     "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
-            //                 );
-            //             },
-            //             CELLVAL::P2 => {
-            //                 sprite!(
-            //                     "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
-            //                 );
-            //             },
-            //             CELLVAL::NotAssigned => {}
-            //         }
-        
-            //         // log!("Nested loop: i = {}, j = {}", i, j);
-            //     }
-            // }
             if player_character != None {
                 let mut confirmed_character = player_character.unwrap();
-                
-                let mut isAttemptingMove: bool = false;
-                let mut dir = DIRECTIONS::Left;
-                if gamepad(0).left.just_pressed() {
-                    isAttemptingMove = true;
-                    dir = DIRECTIONS::Left;
+                // lock actions if there's a winner
+                if !server_game_state.is_winner {
+
+                    let mut isAttemptingMove: bool = false;
+                    let mut dir = DIRECTIONS::Left;
+                    if gamepad(0).left.just_pressed() {
+                        isAttemptingMove = true;
+                        dir = DIRECTIONS::Left;
+                    }
+                    if gamepad(0).right.just_pressed() {
+                        isAttemptingMove = true;
+                        dir = DIRECTIONS::Right;
+                    }
+                    if gamepad(0).up.just_pressed() {
+                        isAttemptingMove = true;
+                        dir = DIRECTIONS::Up;
+                    }
+                    if gamepad(0).down.just_pressed() {
+                        isAttemptingMove = true;
+                        dir = DIRECTIONS::Down;
+                    }
+                    if isAttemptingMove {
+                        let args = borsh::to_vec(&(client_id, dir)).unwrap();
+                        os::client::exec(env::PROJECT_NAME, "attempt_move", &args);
+                    }
                 }
-                if gamepad(0).right.just_pressed() {
-                    isAttemptingMove = true;
-                    dir = DIRECTIONS::Right;
-                }
-                if gamepad(0).up.just_pressed() {
-                    isAttemptingMove = true;
-                    dir = DIRECTIONS::Up;
-                }
-                if gamepad(0).down.just_pressed() {
-                    isAttemptingMove = true;
-                    dir = DIRECTIONS::Down;
-                }
-                if isAttemptingMove {
-                    let args = borsh::to_vec(&(client_id, dir)).unwrap();
-                    os::client::exec(env::PROJECT_NAME, "attempt_move", &args);
-                }
-                // sprite!(
-                //     "Racoon_Main_UpDash_shadow", x = confirmed_character.position.0 * CELL_SIZE, y = confirmed_character.position.1 * CELL_SIZE
-                // );
-                // if gamepad(0).start.just_pressed() {
-                //     if let Some(player_character) = player_character {
-                //         // drawCharacter(playerCharacter.position.x, playerCharacter.position.y)
-                //         //log!("{:?}", player_character.position);
-                //     }
+                // to test win conditions.
+                // if gamepad(0).y.just_pressed() {
+                    
+                //     let testArgs = borsh::to_vec(&confirmed_character.playerId).unwrap();
+                //     os::client::exec(env::PROJECT_NAME, "auto_win", &testArgs);
                 // }
+
             }
                 
         }
         _ => {
-            if gamepad(0).start.just_pressed() {
+            if gamepad(0).x.just_pressed() {
                 join_server();
             } 
-            text!("press space to join!");
+            text!("press c to join!");
         }
     }
 }
