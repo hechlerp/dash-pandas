@@ -16,23 +16,43 @@ struct ServerGameState {
 }
 
 impl ServerGameState {
-    fn new(players: Vec<player::PlayerCharacter>) -> Self {
+    pub fn new(players: Vec<player::PlayerCharacter>) -> Self {
         let mut grid = createBlankGrid();
+
+        //borders
         let borders = createBorders();
         for wall_tuple in borders {
             grid[wall_tuple.0][wall_tuple.1] = CELLVAL::Wall;
         }
+
+        //walls
+
+        let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
+        (9,2), (11,2),
+        (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
+        (4,4), (11,4), (15,4),
+        (3,5), (4,5), (9,5), (11,5),
+        (1,6), (7,6), (9,6), (13,6), (14,6),
+        (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
+        ];
+        
+        for wallTuple in wallSpawns {
+            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+        }
+
+
+        //players
+
         Self {
             grid,
             players
         }
     }
 
-    fn get_grid(&self) -> Vec<Vec<CELLVAL>> {
+    pub fn get_grid(&self) -> Vec<Vec<CELLVAL>> {
         return self.grid.clone();
     }
 }
-
 
 
 
