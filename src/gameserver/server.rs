@@ -12,7 +12,9 @@ pub fn join_server() {
 #[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
 pub struct ServerGameState {
    pub grid: Vec<Vec<CELLVAL>>,
-   pub players: Vec<player::PlayerCharacter>
+   pub players: Vec<player::PlayerCharacter>,
+   pub is_winner: bool,
+   pub winning_player_num: usize
 }
 
 impl ServerGameState {
@@ -45,7 +47,9 @@ impl ServerGameState {
 
         Self {
             grid,
-            players: vec![]
+            players: vec![],
+            is_winner: false,
+            winning_player_num: 20
         }
     }
 
@@ -59,6 +63,11 @@ impl ServerGameState {
             let (grid_x, grid_y) = grid_pos;
             self.grid[grid_y][grid_x] = next_val;
         }
+    }
+
+    pub fn win_game(&mut self, winner: &PlayerCharacter) {
+        self.is_winner = true;
+        self.winning_player_num = winner.playerNum
     }
 }
 
@@ -88,7 +97,8 @@ fn join_lobby(player: String) -> usize {
         state.players = vec![];
         state.players.push(user);
     }
-
+    state.is_winner = false;
+    state.winning_player_num = 20;
     os::server::write!(FP_GAME_STATE, state);
     return os::server::COMMIT;
     
@@ -171,12 +181,27 @@ unsafe extern "C" fn on_attempt_move() -> usize {
     let prev_pos = character.position.clone();
     character.position = nextPos;
     if didEncounterFoe {
-        // play anim, win
+        state.win_game(&character);
     }
     os::server::log!("{:?}", nextPos);
     if nextPos.0 != prev_pos.0 || nextPos.1 != prev_pos.1 {
         state.updateGrid(vec![(prev_pos, CELLVAL::Empty), (nextPos, character.assingedCellVal)]);
     }
+    os::server::write!(FP_GAME_STATE, state);
+    return os::server::COMMIT;
+}
+
+#[export_name = "turbo/auto_win"]
+unsafe extern "C" fn on_auto_win() -> usize {
+    
+    let user_id = os::server::command!(String);
+    let mut state = get_state();
+    let found_player: Option<PlayerCharacter> = get_player_by_id(&state, user_id);
+    if (found_player == None) {
+        return os::server::CANCEL;
+    }
+    let mut character = found_player.unwrap();
+    state.win_game(&character);
     os::server::write!(FP_GAME_STATE, state);
     return os::server::COMMIT;
 }

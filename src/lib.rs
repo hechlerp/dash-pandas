@@ -23,7 +23,8 @@ turbo::init! {
     struct GameState {
         // pub grid: Vec<Vec<CELLVAL>>,
         pub P1Char: PlayerCharacter,
-        pub screenshake_timer: i32
+        pub screenshake_timer: f32,
+        pub move_delay_timer: f32
     } = {
         Self::new()
     }
@@ -58,7 +59,8 @@ impl GameState {
         Self {
             // grid,
             P1Char: PlayerCharacter::new("player1".to_string(), 0),
-            screenshake_timer: 0
+            screenshake_timer: 0,
+            move_delay_timer: 0
         }
     }
 }
@@ -111,18 +113,38 @@ turbo::go!({
     // }
     client::render();
 
+
+
+    //screenshake
+
     //test input - convert to successful movement_end event
     if gamepad(0).left.just_pressed() {
-        state.screenshake_timer = 8;
+        state.screenshake_timer = (8 * 60 / 60) as f32;
     }
 
     //shake screen for timer duration of screenshake
-    if state.screenshake_timer > 0 {
+    if state.screenshake_timer > 0.0 {
         set_camera(rand() as i32 % 8, rand() as i32 % 8);
-        state.screenshake_timer -= 1;
+        state.screenshake_timer -= 1.0;
     } else {
         set_camera(0, 0);
     }
+
+
+    //test input - convert to successful movement_start event
+    if gamepad(0).left.just_pressed() {
+         state.move_delay_timer = (0.4 * 60.0) as f32;
+         //disable incoming damage temporarily
+    }
+
+    //delay movement_end event for timer duration of move_delay
+    if state.screenshake_timer > 0.0 {
+         state.move_delay_timer -= 1.0;
+    } else {
+        //execute movement code here
+        //re-enable incoming damage
+    }
+
 
     state.save();
 });
