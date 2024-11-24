@@ -2,6 +2,7 @@ use crate::*;
 use crate::constants::{FP_GAME_STATE, FP_GAME_INIT};
 use crate::env::{PROJECT_NAME};
 use crate::gameserver::{join_server, ServerGameState};
+use constants::CELL_SIZE;
 use turbo::os::client::channel::*;
 
 pub fn render() {
@@ -37,19 +38,53 @@ pub fn render() {
     let server_game_state = os::client::watch_file(PROJECT_NAME, FP_GAME_STATE)
         .data
         .and_then(|file| ServerGameState::try_from_slice(&file.contents).ok());
+
+    if gamepad(0).start.pressed() {
+        os::client::exec(PROJECT_NAME, "reset_game", &[]);
+    }
     
     match (server_inited, server_game_state) {
         (server_inited, Some(server_game_state)) => {
             // logic
             
             let client_id = os::client::user_id().unwrap();
-            let player_character = server_game_state.players.iter().find(|player| player.playerId == client_id);
-            if gamepad(0).start.just_pressed() {
-                if let Some(player_character) = player_character {
-                    // drawCharacter(playerCharacter.position.x, playerCharacter.position.y)
-                    //log!("{:?}", player_character.position);
+            let player_character = server_game_state.players.into_iter().find(|player| player.playerId == client_id);
+            if player_character != None {
+                let mut confirmed_character = player_character.unwrap();
+                
+                let mut isAttemptingMove: bool = false;
+                let mut dir = DIRECTIONS::Left;
+                if gamepad(0).left.just_pressed() {
+                    isAttemptingMove = true;
+                    dir = DIRECTIONS::Left;
                 }
+                if gamepad(0).right.just_pressed() {
+                    isAttemptingMove = true;
+                    dir = DIRECTIONS::Right;
+                }
+                if gamepad(0).up.just_pressed() {
+                    isAttemptingMove = true;
+                    dir = DIRECTIONS::Up;
+                }
+                if gamepad(0).down.just_pressed() {
+                    isAttemptingMove = true;
+                    dir = DIRECTIONS::Down;
+                }
+                if isAttemptingMove {
+                    let args = borsh::to_vec(&(client_id, dir)).unwrap();
+                    os::client::exec(env::PROJECT_NAME, "attempt_move", &args);
+                }
+                sprite!(
+                    "Racoon_Main_UpDash_shadow", x = confirmed_character.position.0 * CELL_SIZE, y = confirmed_character.position.1 * CELL_SIZE
+                );
+                // if gamepad(0).start.just_pressed() {
+                //     if let Some(player_character) = player_character {
+                //         // drawCharacter(playerCharacter.position.x, playerCharacter.position.y)
+                //         //log!("{:?}", player_character.position);
+                //     }
+                // }
             }
+                
         }
         _ => {
             if gamepad(0).start.just_pressed() {
@@ -57,29 +92,5 @@ pub fn render() {
             } 
             text!("press space to join!");
         }
-    }
-    
-    let mut isAttemptingMove: bool = false;
-    let player = os::client::user_id().unwrap();
-    let mut dir = DIRECTIONS::Left;
-    if gamepad(0).left.just_pressed() {
-        isAttemptingMove = true;
-        dir = DIRECTIONS::Left;
-    }
-    if gamepad(0).right.just_pressed() {
-        isAttemptingMove = true;
-        dir = DIRECTIONS::Right;
-    }
-    if gamepad(0).up.just_pressed() {
-        isAttemptingMove = true;
-        dir = DIRECTIONS::Up;
-    }
-    if gamepad(0).down.just_pressed() {
-        isAttemptingMove = true;
-        dir = DIRECTIONS::Down;
-    }
-    if isAttemptingMove {
-        let args = borsh::to_vec(&(player, dir)).unwrap();
-        os::client::exec(env::PROJECT_NAME, "attempt_move", &args);
     }
 }
