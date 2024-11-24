@@ -94,33 +94,7 @@ turbo::go!({
         log!("DEBUG: {:?}", state.P1Char.position);
     }
 
-    //sprite!(
-    //    "Racoon_Main_UpDash_shadow"
-    //);
-    for j in 0..constants::MAP_DIM_Y {
-        for i in 0..constants::MAP_DIM_X {
-            match state.grid[i][j] {
-                CELLVAL::Empty => {},
-                CELLVAL::Wall => {
-                    sprite!(
-                        "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
-                    );
-                },
-                CELLVAL::P1 => {
-                    sprite!(
-                        "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
-                    );
-                },
-                CELLVAL::P2 => {
-                    sprite!(
-                        "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
-                    );
-                }
-            }
-
-            log!("Nested loop: i = {}, j = {}", i, j);
-        }
-    }
+    
     state.save();
 });
 
