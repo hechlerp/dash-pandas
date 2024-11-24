@@ -23,10 +23,12 @@ turbo::init! {
     struct GameState {
         // pub grid: Vec<Vec<CELLVAL>>,
         pub P1Char: PlayerCharacter,
+        pub screenshake_timer: i32
     } = {
         Self::new()
     }
 }
+
 
 impl GameState {
     fn new() -> Self {
@@ -55,7 +57,8 @@ impl GameState {
 
         Self {
             // grid,
-            P1Char: PlayerCharacter::new("player1".to_string(), 0)
+            P1Char: PlayerCharacter::new("player1".to_string(), 0),
+            screenshake_timer: 0
         }
     }
 }
@@ -108,7 +111,19 @@ turbo::go!({
     // }
     client::render();
 
-    
+    //test input - delete later
+    if gamepad(0).left.just_pressed() {
+        state.screenshake_timer = 60;
+    }
+
+    //duration of screenshake
+    if state.screenshake_timer > 0 {
+        set_camera(rand() as i32 % 3, rand() as i32 % 3);
+        state.screenshake_timer -= 1;
+    } else {
+        set_camera(0, 0);
+    }
+
     state.save();
 });
 
