@@ -12,7 +12,7 @@ turbo::cfg! {r#"
     author = "Turbo"
     description = "Your first turbo os program"
     [settings]
-    resolution = [132, 224]
+    resolution = [544, 256]
     [turbo-os]
     api-url = "https://os.turbo.computer"
 "#}
@@ -34,6 +34,9 @@ impl GameState {
 
         for wallTuple in borders {
             grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+            sprite!(
+                "Racoon_Main_UpDash_shadow", 
+            );
         }
         for wallTuple in wallSpawns {
             grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
