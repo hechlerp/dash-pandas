@@ -4,7 +4,8 @@ use constants::CELLVAL;
 use environment::{createBlankGrid, createBorders};
 mod constants;
 mod env;
-mod server;
+mod client;
+mod gameserver;
 
 turbo::cfg! {r#"
     name = "dash-pandas"

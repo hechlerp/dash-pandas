@@ -1,6 +1,6 @@
 
 use crate::*;
-use crate::constants::{self, CELLVAL, CELL_SIZE, MAP_DIM_X, MAP_DIM_Y};
+use crate::constants::{CELLVAL, CELL_SIZE, MAP_DIM_X, MAP_DIM_Y};
 
 pub fn createBlankGrid() -> Vec<Vec<CELLVAL>> {
     let mut grid: Vec<Vec<CELLVAL>> = vec![];

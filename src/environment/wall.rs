@@ -1,6 +1,6 @@
 
 use crate::*;
-use crate::constants::{self, DIRECTIONS, CELLVAL, MAP_DIM_X, MAP_DIM_Y};
+use crate::constants::{DIRECTIONS, CELLVAL, MAP_DIM_X, MAP_DIM_Y};
 
 pub fn isWall(currentX: usize, currentY: usize, direction: constants::DIRECTIONS, state: GameState) -> bool {
     let mut nextX = currentX;
