@@ -13,7 +13,7 @@ turbo::cfg! {r#"
     author = "Turbo"
     description = "Your first turbo os program"
     [settings]
-    resolution = [132, 224]
+    resolution = [576, 288]
     [turbo-os]
     api-url = "https://os.turbo.computer"
 "#}
@@ -29,17 +29,20 @@ turbo::init! {
 
 impl GameState {
     fn new() -> Self {
-        let borders: Vec<(usize, usize)> = createBorders();
         let mut grid: Vec<Vec<CELLVAL>> = createBlankGrid();
-        let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,2)];
+        let borders: Vec<(usize, usize)> = createBorders();
 
         for wallTuple in borders {
             grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+            sprite!(
+                "Racoon_Main_UpDash_shadow", x = wallTuple.0 * 32, y = -(wallTuple.1 as isize) * 32
+            );
         }
         for wallTuple in wallSpawns {
             grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
         }
-        
+
+
         Self {
             grid,
             frameNum: 0
@@ -95,9 +98,33 @@ turbo::go!({
     }
     client::render();
 
-    sprite!(
-        "Racoon_Main_UpDash_shadow"
-    );
+    //sprite!(
+    //    "Racoon_Main_UpDash_shadow"
+    //);
+    for j in 0..constants::MAP_DIM_Y {
+        for i in 0..constants::MAP_DIM_X {
+            match state.grid[i][j] {
+                CELLVAL::Empty => {},
+                CELLVAL::Wall => {
+                    sprite!(
+                        "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
+                    );
+                },
+                CELLVAL::P1 => {
+                    sprite!(
+                        "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
+                    );
+                },
+                CELLVAL::P2 => {
+                    sprite!(
+                        "Racoon_Main_UpDash_shadow", x = i * 32, y = (j as isize) * 32
+                    );
+                }
+            }
+
+            log!("Nested loop: i = {}, j = {}", i, j);
+        }
+    }
     state.save();
 });
 
