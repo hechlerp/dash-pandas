@@ -13,7 +13,7 @@ pub struct PlayerCharacter {
 impl PlayerCharacter {
     pub fn new(player: String, num: usize) -> Self {
         let mut playerRole: CELLVAL = if num == 0 {CELLVAL::P1} else {CELLVAL::P2};
-        let spawn_pos : (usize, usize) = if num == 0 {(1, 2)} else {(16, 7)};
+        let spawn_pos : (usize, usize) = (1, 1);//if num == 0 {(1, 1)} else {(16, 7)};
         Self {
             position: spawn_pos, // Position in grid
             playerId: player,
@@ -46,10 +46,10 @@ impl PlayerCharacter {
 
             let mut nextPos: (usize, usize);
             match direction {
-                DIRECTIONS::Up => nextPos = (self.position.0, self.position.1 - 1),
-                DIRECTIONS::Down => nextPos = (self.position.0, self.position.1 + 1),
-                DIRECTIONS::Left => nextPos = (self.position.0 - 1, self.position.1),
-                DIRECTIONS::Right => nextPos = (self.position.0 + 1, self.position.1)
+                DIRECTIONS::Up => nextPos = (self.position.0 - 1, self.position.1),
+                DIRECTIONS::Down => nextPos = (self.position.0 + 1, self.position.1 ),
+                DIRECTIONS::Left => nextPos = (self.position.0, self.position.1- 1),
+                DIRECTIONS::Right => nextPos = (self.position.0, self.position.1 + 1)
             }
             if self.isNextStepPosAnEnemy(nextPos,  &grid) {
                 // Attack enemy

@@ -13,7 +13,7 @@ pub fn isNextStepPosCellAWall(currentX: usize, currentY: usize, direction: &cons
         DIRECTIONS::Right=>nextX += 1
     }
 
-    return grid[nextX][nextY] == CELLVAL::Wall;
+    return grid[nextY][nextX] == CELLVAL::Wall;
 
 }
 

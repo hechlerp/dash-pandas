@@ -44,7 +44,8 @@ pub fn render() {
     if gamepad(0).start.pressed() {
         os::client::exec(PROJECT_NAME, "reset_game", &[]);
     }
-    
+
+
     match (server_inited, server_game_state) {
         (server_inited, Some(server_game_state)) => {
             // logic
@@ -53,12 +54,16 @@ pub fn render() {
             let player_character = server_game_state.players.into_iter().find(|player| player.playerId == client_id);
 
             let grid = server_game_state.grid;
-            
+    
+
             if gamepad(0).a.just_pressed() {
                 for y in 0..constants::MAP_DIM_Y {
                     log!("{:?}", grid[y]);
                 }
             }
+
+            log!("GRID");
+            log!("{:?}", grid);
             for y in 0..grid.len() {
                 for x in 0..grid[y].len() {
                     match grid[y][x] {
@@ -69,6 +74,7 @@ pub fn render() {
                             );
                         },
                         CELLVAL::P1 => {
+                            log!("P1 Pos: {}, {}", x, y);
                             sprite!(
                                 "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
                             );

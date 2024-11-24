@@ -27,13 +27,13 @@ impl ServerGameState {
 
         //walls
 
-        let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
+        let wallSpawns: Vec<(usize, usize)> = vec![/* (1,1), (2,1), (3,1), (15,1), (16,1),
         (9,2), (11,2),
         (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
         (4,4), (11,4), (15,4),
         (3,5), (4,5), (9,5), (11,5),
         (1,6), (7,6), (9,6), (13,6), (14,6),
-        (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
+        (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7) */
         ];
         
         for wallTuple in wallSpawns {
@@ -76,11 +76,19 @@ fn join_lobby(player: String) -> usize {
     let player_count = state.players.len();
     os::server::log!("{} players", state.players.len());
     let mut user = player::PlayerCharacter::new(player.clone(), if player_count < MAX_PLAYERS {player_count } else { 0 });
+    os::server::log!("Joined Player Pos: ({}, {})", user.position.0, user.position.1);
+
+    let playerPos: &(usize, usize) = &user.position;
+    state.grid[playerPos.1][playerPos.0] = user.assingedCellVal.clone();
+
     if player_count < MAX_PLAYERS {
         state.players.push(user);
+        os::server::log!("Player joined success");
     } else {
-        state.players = vec![user];
+        state.players = vec![];
+        state.players.push(user);
     }
+
     os::server::write!(FP_GAME_STATE, state);
     return os::server::COMMIT;
     
@@ -109,7 +117,7 @@ fn get_state() -> ServerGameState {
 #[export_name = "turbo/join_server"]
 unsafe extern "C" fn on_server_join() -> usize {
     let userData = os::server::get_command_data();
-    let userId = String::from_utf8(userData).unwrap();
+    let userId: String = String::from_utf8(userData).unwrap();
     os::server::log!("user joined!");
     let has_been_initialized: bool = os::server::read_or!(bool, FP_GAME_INIT, false);
     if !has_been_initialized {
@@ -159,7 +167,7 @@ unsafe extern "C" fn on_attempt_move() -> usize {
         return os::server::CANCEL;
     }
     let mut character = found_player.unwrap();
-    let (nextPos, didEncounterFoe) = character.getMovementSpaceInDir(dir, &get_grid(&state));
+    let (nextPos, didEncounterFoe) = /* ((1,1), false); */ character.getMovementSpaceInDir(dir, &get_grid(&state));
     let prev_pos = character.position.clone();
     character.position = nextPos;
     if didEncounterFoe {
