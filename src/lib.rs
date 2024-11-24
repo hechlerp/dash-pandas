@@ -153,7 +153,7 @@ turbo::go!({
 
 
     //delay movement_end event for timer duration of move_delay
-    if state.smoke_timer > 0.0 {
+    if false {
          state.smoke_timer -= 1.0;
          
          //replace this with actual location of player
