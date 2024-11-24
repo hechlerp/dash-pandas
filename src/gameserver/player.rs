@@ -13,7 +13,7 @@ pub struct PlayerCharacter {
 impl PlayerCharacter {
     pub fn new(player: String, num: usize) -> Self {
         let mut playerRole: CELLVAL = if num == 0 {CELLVAL::P1} else {CELLVAL::P2};
-        let spawn_pos : (usize, usize) = if num == 0 {(1, 2)} else {(16, 7)};
+        let spawn_pos : (usize, usize) = (1, 2);//if num == 0 {(1, 2)} else {(16, 7)};
         Self {
             position: spawn_pos, // Position in grid
             playerId: player,
@@ -37,19 +37,19 @@ impl PlayerCharacter {
         Self::RemoveFromGrid();
 
         let mut loopCount = 0;
-        let mut maxLoopIterations = 100;
+        let mut max_loop_iterations = 100;
 
-        while (loopCount < maxLoopIterations &&
+        while (loopCount < max_loop_iterations &&
             !(isNextStepPosCellAWall(self.position.0, self.position.1, &direction, &grid))) {
 
             loopCount += 1;
 
             let mut nextPos: (usize, usize);
             match direction {
-                DIRECTIONS::Up => nextPos = (self.position.0, self.position.1 - 1),
-                DIRECTIONS::Down => nextPos = (self.position.0, self.position.1 + 1),
-                DIRECTIONS::Left => nextPos = (self.position.0 - 1, self.position.1),
-                DIRECTIONS::Right => nextPos = (self.position.0 + 1, self.position.1)
+                DIRECTIONS::Up => nextPos = (self.position.0 - 1, self.position.1),
+                DIRECTIONS::Down => nextPos = (self.position.0 + 1, self.position.1 ),
+                DIRECTIONS::Left => nextPos = (self.position.0, self.position.1- 1),
+                DIRECTIONS::Right => nextPos = (self.position.0, self.position.1 + 1)
             }
             if self.isNextStepPosAnEnemy(nextPos,  &grid) {
                 // Attack enemy
@@ -64,22 +64,22 @@ impl PlayerCharacter {
     }
 
     pub fn getMovementSpaceInDir(&mut self, direction: constants::DIRECTIONS, grid: &Vec<Vec<CELLVAL>>) -> ((usize, usize), bool) {
-        let mut loopCount = 0;
-        let mut maxLoopIterations = 100;
+        let mut loopCount: i32 = 0;
+        let mut max_loop_iterations = 100;
         let mut didEncounterFoe: bool = false;
         let mut currentStep: (usize, usize) = (self.position.0, self.position.1);
-        while (loopCount < maxLoopIterations &&
-            !(isNextStepPosCellAWall(self.position.0, self.position.1, &direction, &grid))) {
+        while (loopCount < max_loop_iterations &&
+            !(isNextStepPosCellAWall(currentStep.0, currentStep.1, &direction, &grid))) {
 
             loopCount += 1;
             
             let mut nextPos: (usize, usize);
 
             match direction {
-                DIRECTIONS::Up => nextPos = (self.position.0, self.position.1 - 1),
-                DIRECTIONS::Down => nextPos = (self.position.0, self.position.1 + 1),
-                DIRECTIONS::Left => nextPos = (self.position.0 - 1, self.position.1),
-                DIRECTIONS::Right => nextPos = (self.position.0 + 1, self.position.1)
+                DIRECTIONS::Up => nextPos = (currentStep.0, currentStep.1 - 1),
+                DIRECTIONS::Down => nextPos = (currentStep.0, currentStep.1 + 1),
+                DIRECTIONS::Left => nextPos = (currentStep.0 - 1, currentStep.1),
+                DIRECTIONS::Right => nextPos = (currentStep.0 + 1, currentStep.1)
             }
 
             if self.isNextStepPosAnEnemy(nextPos,&grid) {
