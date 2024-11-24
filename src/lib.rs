@@ -2,7 +2,7 @@ mod environment;
 use std::collections::HashMap;
 use constants::CELLVAL;
 use environment::{createBlankGrid, createBorders};
-use server::PlayerCharacter;
+use gameserver::PlayerCharacter;
 mod constants;
 mod env;
 mod client;
@@ -14,7 +14,7 @@ turbo::cfg! {r#"
     author = "Turbo"
     description = "Your first turbo os program"
     [settings]
-    resolution = [544, 256]
+    resolution = [576, 288]
     [turbo-os]
     api-url = "https://os.turbo.computer"
 "#}

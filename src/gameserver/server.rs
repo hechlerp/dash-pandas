@@ -1,7 +1,7 @@
 use crate::env::{PROJECT_NAME};
 use crate::*;
 use crate::constants::{MAX_PLAYERS, DIRECTIONS, CELLVAL, MAP_DIM_X, MAP_DIM_Y, FP_GAME_STATE, FP_GAME_INIT};
-use crate::server::player;
+use crate::gameserver::player;
 
 pub fn join_server() {
 
@@ -10,9 +10,9 @@ pub fn join_server() {
 }
 
 #[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
-struct ServerGameState {
-    grid: Vec<Vec<CELLVAL>>,
-    players: Vec<player::PlayerCharacter>
+pub struct ServerGameState {
+   pub grid: Vec<Vec<CELLVAL>>,
+   pub players: Vec<player::PlayerCharacter>
 }
 
 impl ServerGameState {
