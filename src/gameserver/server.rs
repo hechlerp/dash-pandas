@@ -22,7 +22,7 @@ impl ServerGameState {
         //borders
         let borders = createBorders();
         for wall_tuple in borders {
-            grid[wall_tuple.0][wall_tuple.1] = CELLVAL::Wall;
+            grid[wall_tuple.1][wall_tuple.0] = CELLVAL::Wall;
         }
 
         //walls
@@ -37,7 +37,7 @@ impl ServerGameState {
         ];
         
         for wallTuple in wallSpawns {
-            grid[wallTuple.0][wallTuple.1] = CELLVAL::Wall;
+            grid[wallTuple.1][wallTuple.0] = CELLVAL::Wall;
         }
 
 
