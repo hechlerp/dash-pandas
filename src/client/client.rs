@@ -98,7 +98,7 @@ pub fn render() {
             }
             if server_game_state.is_winner {
                 let msg: String = format!("Player {} wins! Space to restart.", server_game_state.winning_player_num + 1);
-                text!(&msg, absolute = true, x = 175, y = 144, color = 0xff0000ff);
+                text!(&msg, absolute = true, x = 175, y = 188, color = 0xffffffff, font = Font::L);
             }
             
             if player_character != None {
