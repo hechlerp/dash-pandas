@@ -53,6 +53,33 @@ impl ServerGameState {
         }
     }
 
+    pub fn wipe_grid(&mut self) {
+        let mut grid = createBlankGrid();
+
+        //borders
+        let borders = createBorders();
+        for wall_tuple in borders {
+            grid[wall_tuple.1][wall_tuple.0] = CELLVAL::Wall;
+        }
+
+        //walls
+
+        let wallSpawns: Vec<(usize, usize)> = vec![(1,1), (2,1), (3,1), (15,1), (16,1),
+        (9,2), (11,2),
+        (3,3), (4,3), (6,3), (7,3), (8,3), (9,3), (11,3), (12,3), (15,3),
+        (4,4), (11,4), (15,4),
+        (3,5), (4,5), (9,5), (11,5),
+        (1,6), (7,6), (9,6), (13,6), (14,6),
+        (1,7), (5,7), (6,7), (7,7), (9,7), (10,7), (11,7)
+        ];
+        
+        for wallTuple in wallSpawns {
+            grid[wallTuple.1][wallTuple.0] = CELLVAL::Wall;
+        }
+
+        self.grid = grid;
+    }
+
     pub fn get_grid(&self) -> Vec<Vec<CELLVAL>> {
         return self.grid.clone();
     }
@@ -148,13 +175,21 @@ unsafe extern "C" fn on_server_join() -> usize {
 
 #[export_name = "turbo/leave_server"]
 unsafe extern "C" fn on_server_leave() -> usize {
-    let user: String = os::server::get_user_id();
-    return leave_lobby(user);
+    os::server::write!(FP_GAME_STATE, ServerGameState::new());
+    return os::server::COMMIT;
+    // return leave_lobby(user);
 }
 
 #[export_name = "channel/dash-pandas-multiplayer-channel"]
 unsafe extern "C" fn on_connect() {
     use turbo::os::server::*;
+    os::server::enqueue_command (
+        PROJECT_NAME, 
+        "leave_server", 
+        &[],
+        os::server::random_number(), 
+        None
+    );
     loop {
         match os::server::channel_recv() {
             Ok(ChannelMessage::Connect(user_id, data)) => {
@@ -220,12 +255,19 @@ unsafe extern "C" fn on_auto_win() -> usize {
 unsafe extern "C" fn on_reset() -> usize {
     let mut old_state = get_state();
 
-    let mut state = ServerGameState::new();
-    for player in old_state.players {
-        state.players.push(PlayerCharacter::new(player.playerId, player.playerNum));
-        state.updateGrid(vec![(player.position, player.assingedCellVal.clone())]);
+    // let mut state = ServerGameState::new();
+    
+    for player in &old_state.players.clone() {
+        old_state.updateGrid(vec![(player.position, CELLVAL::Empty)]);
+        // old_state.grid[player.position.1][player.position.0] = CELLVAL::Empty;
+        // state.players.push(PlayerCharacter::new(player.playerId, player.playerNum));
+        old_state.updateGrid(vec![(if player.playerNum == 0 {(1, 2)} else {(16, 7)}, player.assingedCellVal.clone())]);
     }
-    os::server::write!(FP_GAME_STATE, state);
+    os::server::log!("{}", old_state.players.len());
+    old_state.is_winner = false;
+    old_state.winning_player_num = 20;
+
+    os::server::write!(FP_GAME_STATE, old_state);
 
 
     return os::server::COMMIT;
