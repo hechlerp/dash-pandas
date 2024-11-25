@@ -65,7 +65,12 @@ pub fn render() {
             for y in 0..grid.len() {
                 for x in 0..grid[y].len() {
                     match grid[y][x] {
-                        CELLVAL::Empty => {},
+                        
+                        CELLVAL::Empty => {
+                            sprite!(
+                                "ground", x = x * CELL_SIZE, y = y * CELL_SIZE
+                            );
+                        },
                         CELLVAL::Wall => {
                             sprite!(
                                 "dumpster-top", x = x * CELL_SIZE, y = y * CELL_SIZE
@@ -73,10 +78,16 @@ pub fn render() {
                         },
                         CELLVAL::P1 => {
                             sprite!(
+                                "ground", x = x * CELL_SIZE, y = y * CELL_SIZE
+                            );
+                            sprite!(
                                 "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
                             );
                         },
                         CELLVAL::P2 => {
+                            sprite!(
+                                "ground", x = x * CELL_SIZE, y = y * CELL_SIZE
+                            );
                             sprite!(
                                 "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
                             );
@@ -87,7 +98,7 @@ pub fn render() {
             }
             if server_game_state.is_winner {
                 let msg: String = format!("Player {} wins! Space to restart.", server_game_state.winning_player_num + 1);
-                text!(&msg, absolute = true, x = 175, y = 144, color = 0xff0000ff);
+                text!(&msg, absolute = true, x = 175, y = 188, color = 0xffffffff, font = Font::L);
             }
             
             if player_character != None {
