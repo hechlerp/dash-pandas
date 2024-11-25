@@ -13,7 +13,7 @@ pub struct PlayerCharacter {
 impl PlayerCharacter {
     pub fn new(player: String, num: usize) -> Self {
         let mut playerRole: CELLVAL = if num == 0 {CELLVAL::P1} else {CELLVAL::P2};
-        let spawn_pos : (usize, usize) = (1, 2);//if num == 0 {(1, 2)} else {(16, 7)};
+        let spawn_pos : (usize, usize) = if num == 0 {(1, 2)} else {(16, 7)};
         Self {
             position: spawn_pos, // Position in grid
             playerId: player,
