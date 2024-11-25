@@ -103,6 +103,10 @@ pub fn render() {
             
             if player_character != None {
                 let mut confirmed_character = player_character.unwrap();
+                let color: i32 = if confirmed_character.playerNum == 0 {0xff0000} else {0x0000ffff};
+                let text: &str = if confirmed_character.playerNum == 0 { "1" } else { "2" };
+                let label = format!("P{}", text);
+                text!(&label, x = confirmed_character.position.0, y = confirmed_character.position.1 - 20, color = color, absolute = true);
                 // lock actions if there's a winner
                 if !server_game_state.is_winner {
 
