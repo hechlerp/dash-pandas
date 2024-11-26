@@ -73,7 +73,7 @@ pub fn render() {
                         },
                         CELLVAL::Wall => {
                             sprite!(
-                                "dumpster-side", x = x * CELL_SIZE, y = (y * CELL_SIZE) + CELL_SIZE
+                                "dumpster-side-funneled", x = x * CELL_SIZE, y = (y * CELL_SIZE) + CELL_SIZE
                             );
                             sprite!(
                                 "dumpster-top", x = x * CELL_SIZE, y = y * CELL_SIZE
@@ -84,7 +84,7 @@ pub fn render() {
                                 "ground", x = x * CELL_SIZE, y = y * CELL_SIZE
                             );
                             sprite!(
-                                "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
+                                "Racoon_Main_RightDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
                             );
                         },
                         CELLVAL::P2 => {
@@ -92,7 +92,7 @@ pub fn render() {
                                 "ground", x = x * CELL_SIZE, y = y * CELL_SIZE
                             );
                             sprite!(
-                                "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
+                                "Racoon_Main_RightDash_shadow_brown", x = x * CELL_SIZE, y = y * CELL_SIZE
                             );
                         },
                         CELLVAL::NotAssigned => {}
@@ -107,7 +107,7 @@ pub fn render() {
                         CELLVAL::Empty => {},
                         CELLVAL::Wall => {
                             sprite!(
-                                "dumpster-side", x = x * CELL_SIZE, y = (y * CELL_SIZE) + CELL_SIZE
+                                "dumpster-side-funneled", x = x * CELL_SIZE, y = (y * CELL_SIZE) + CELL_SIZE
                             );
                             sprite!(
                                 "dumpster-top", x = x * CELL_SIZE, y = y * CELL_SIZE
@@ -115,12 +115,12 @@ pub fn render() {
                         },
                         CELLVAL::P1 => {
                             sprite!(
-                                "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
+                                "Racoon_Main_RightDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
                             );
                         },
                         CELLVAL::P2 => {
                             sprite!(
-                                "Racoon_Main_UpDash_shadow", x = x * CELL_SIZE, y = y * CELL_SIZE
+                                "Racoon_Main_RightDash_shadow_brown", x = x * CELL_SIZE, y = y * CELL_SIZE
                             );
                         },
                         CELLVAL::NotAssigned => {}
